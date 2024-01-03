@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Monster : MonoBehaviour
 {
-    public int hitCount;
+    public int curHp;
     public int maxHp;
     public int Damage;
     
@@ -12,4 +12,8 @@ public class Monster : MonoBehaviour
     public SpriteRenderer sr;
     private Rigidbody rb;
 
+    public void GetDamage(int Damage)
+    {
+        curHp -= Damage;
+    }
 }

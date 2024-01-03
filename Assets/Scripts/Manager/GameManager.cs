@@ -6,14 +6,14 @@ public class GameManager : MonoBehaviour
 {
     public Monster monster;
     public Player player;
-    private GameManager Instance { set;  get; }
+    public static GameManager Instance { get; private set; }
 
     private void Awake()
     {
         if( Instance != null)
         {
-            Destroy(Instance );
-            Instance = null;
+            DestroyImmediate(Instance);
+            return;
         }
         Instance = this;
     }
