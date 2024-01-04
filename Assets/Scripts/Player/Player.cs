@@ -19,10 +19,12 @@ public class Player : MonoBehaviour
         slideWall = 7,
     }
     State state;
+
     public int Damage;
     private int curHp;
     public int maxHp;
     protected float HpAmount;
+    
     public float speed;
     public float jumpPower;
     
@@ -30,13 +32,27 @@ public class Player : MonoBehaviour
     private Rigidbody2D rb;
     private Animator animator;
     private CapsuleCollider2D cc;
-    
+    public RaycastHit2D hit;
+
+    public LayerMask groundMask;
+    public Transform chkPos;
+    private Vector2 perp;
+    private float angle;
+    public float checkRadius;
+    public float distance;
+    bool isSlope;
+
+    bool isWall;
+    public Transform wallchkPos;
+    public float wallChkDistance;
+    public LayerMask wallLayer;
     //bool isAlive = true;
-    
+
     //bool isRunning = false;
     bool isSit = false;
     bool isJumping = false;
     bool isHitted = false;
+    bool canSlippery = false;
 
     //bool onRadder = true;
     bool isGrounded = true;
@@ -53,8 +69,11 @@ public class Player : MonoBehaviour
         cc = GetComponent<CapsuleCollider2D>();
     }
 
+    public float MaxAngle;
+
     private void Update()
     {
+
         float x = Input.GetAxis("Horizontal");
         
         if (isHitted)
@@ -80,10 +99,8 @@ public class Player : MonoBehaviour
                 }
                 if (Input.GetAxis("Jump") != 0)
                 {
-                    rb.AddForce(new Vector2(0, jumpPower), ForceMode2D.Impulse);
-                    isGrounded = false;
-                    isJumping = true;
                     state = State.Jump;
+                    Jump();
                 }
                 if (Input.GetAxisRaw("Vertical") < 0)
                 {
@@ -92,26 +109,34 @@ public class Player : MonoBehaviour
                 break;
             case State.Run:
                 
+                if (isSlope && isGrounded && !isJumping && angle < MaxAngle)
+                {
+                    rb.velocity = perp * speed * Input.GetAxis("Horizontal") * -1f;
+                }
+                else if (!isSlope && isGrounded && !isJumping)
+                {
+                    rb.velocity = new Vector2(Input.GetAxis("Horizontal") * speed, 0);
+                }
+                else
                 rb.velocity = new Vector2(x * speed, rb.velocity.y);
 
-                if (x < 0)
-                    {
-                        sr.flipX = true;
-                    }
-                else if (x > 0)
-                    {
-                        sr.flipX = false;
-                    }
-                else if (x == 0)
+                //if (x < 0)
+                //    {
+                //        sr.flipX = true;
+                //    }
+                //else if (x > 0)
+                //    {
+                //        sr.flipX = false;
+                //    }
+                Flip();
+                if (x == 0)
                     {
                         state = State.Idle;
                     }
                 
                 if (Input.GetButtonDown("Jump"))
                 {
-                    isGrounded = false;
-                    isJumping = true;
-                    rb.AddForce(new Vector2(0, jumpPower), ForceMode2D.Impulse);
+                    Jump();
                     state = State.Jump;
                 }
                 if (Input.GetAxisRaw("Vertical") < 0)
@@ -143,8 +168,8 @@ public class Player : MonoBehaviour
                 {
                     rb.velocity = new Vector2(x * speed, rb.velocity.y);
                 }
-                if (isGrounded && rb.velocity.y == 0)
-                {
+                if (isGrounded)
+                {                    
                     state = State.Idle; 
                 }
                 break; 
@@ -163,11 +188,10 @@ public class Player : MonoBehaviour
 
                 break;
             case State.slideWall:
-                //rb.velocity = new Vector2(rb.velocity.x, );
+
+                
                 if (Input.GetButtonDown("Jump"))
                 {
-                    isGrounded = false;
-                    isJumping = true;
                     rb.AddForce(new Vector2(0, jumpPower * 1.3f), ForceMode2D.Impulse);
                     state = State.Jump;
                 }
@@ -176,17 +200,51 @@ public class Player : MonoBehaviour
                     state = State.Idle;
                 }
                 break;
-            //case State.Turn:
-                
-            //    isTurn = false;
-            //    sr.flipX = x < 0;
-            //    state = State.Run;
-            //    break;
+        }        
+        GroundChk();
+        WallChk();
+
+        if (x == 0)
+            rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
+        else
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+
+        RaycastHit2D hit = Physics2D.Raycast(chkPos.position, Vector2.down, distance, groundMask);
+        
+        if (hit)
+        {
+            perp = Vector2.Perpendicular(hit.normal).normalized;
+            angle = Vector2.Angle(hit.normal, Vector2.up);
+            if (angle != 0)
+                isSlope = true;
+            else
+                isSlope = false;
         }
         animator.SetInteger("State", (int)state);
-
-
     }
+    private void FixedUpdate()
+    {
+        if (isGrounded)
+        {
+            state = State.Idle;
+        }
+        if (canSlippery &&  Input.GetAxis("Horizontal") != 0)
+        {
+            state = State.slideWall;
+        }
+        else if (canSlippery && Input.GetAxis("Horizontal") ==0)
+        {
+            state = State.Idle;
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+            Dash();
+        }
+    }
+    
+    
+    
     public void attack()
     {
         state = State.Attack;
@@ -194,32 +252,76 @@ public class Player : MonoBehaviour
     }
     public int GetDamage(int damage)
     {
+        state = State.Hit;
         curHp -= damage;
+        rb.AddForce(new Vector2(-1, 0.3f), ForceMode2D.Impulse);
         return curHp;
     }
-
-    private void OnCollisionEnter2D(Collision2D collision)
+    void GroundChk()
     {
-        if (collision.gameObject.tag == "Plat")
-        {
-            isJumping = false;
-            isGrounded = true;
-        }
-        if (collision.gameObject.tag == "Monster")
-        {
-            isHitted = true;
-            GetDamage(GameManager.Instance.monster.Damage);
-            state = State.Hit;
-        }
+        isGrounded = Physics2D.Raycast(chkPos.position, Vector2.down, distance, groundMask);
 
     }
-    private void OnTriggerEnter2D(Collider2D other)
+    void WallChk()
+    {
+        isWall = Physics2D.Raycast(wallchkPos.position, Vector2.right, wallChkDistance, wallLayer);
+
+    }
+    void Flip()
+    {
+        float x = Input.GetAxis("Horizontal");
+        if (x > 0)
+        {
+            transform.eulerAngles = new Vector3(0, 0, 0);
+        }
+        else if (x < 0)
+        {
+            transform.eulerAngles = new Vector3(0, 180, 0);
+        }
+    }
+    private void Slip()
+    {
+        if (canSlippery)
+        {
+            rb.AddForce(new Vector2(0, 0.3f), ForceMode2D.Impulse);
+        }
+    }
+    private void WallJump()
+    {
+        if (canSlippery && Input.GetAxis("Horizontal") !=0 && Input.GetAxis("Jump") != 0)
+        {
+            rb.AddForce(new Vector2(0.5f, 1), ForceMode2D.Impulse);
+        }
+    }
+    private void Dash()
+    {
+        if (state == State.Idle || state == State.Run || state == State.Jump)
+        {
+            rb.AddForce(new Vector2(2,0), ForceMode2D.Impulse);
+        }
+    }
+    private void Jump()
     {
 
-        if (other.gameObject.tag == "KickAbleWall")
+        if (isGrounded)
         {
+            if (Input.GetAxis("Jump") != 0)
+            {
+                isJumping = true;
+                rb.AddForce(new Vector2(0, jumpPower), ForceMode2D.Impulse);
+            }
+        }
+    }
+
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (other.gameObject.tag == "KickAbleWall" && !isGrounded)
+        {
+            isJumping = true;            
             state = State.slideWall;
         }
+       
+
     }
 
     public int Equipment(int Equip)

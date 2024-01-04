@@ -16,4 +16,13 @@ public class Monster : MonoBehaviour
     {
         curHp -= Damage;
     }
+
+
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if (other.collider.tag == "Player")
+        {
+            GameManager.Instance.player.GetDamage(Damage);            
+        }
+    }
 }
