@@ -1,19 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.Experimental.GraphView.GraphView;
 public enum State_P
 {
-    Idle = 0,
-    Run = 1,
-    Sit = 2,
-    Jump = 3,
+    Idle   = 0,
+    Run    = 1,
+    Sit    = 2,
+    Jump   = 3,
     Attack = 4,
-    Hit = 5,
-    Slide = 6,
+    Hit    = 5,
+    Slide  = 6,
     slideWall = 7,
+    Turn   = 8
 }
 
-public class CharacterMove : MonoBehaviour
+public class PlayerMove : MonoBehaviour
 {
 
     State_P state;
@@ -21,12 +23,12 @@ public class CharacterMove : MonoBehaviour
     public float speed;
     public float jumpPower;
 
-    private SpriteRenderer sr;
     [HideInInspector]
     public Rigidbody2D rb;
+    
+    private SpriteRenderer sr;
     private Animator animator;
     private CapsuleCollider2D cc;
-    public RaycastHit2D hit;
 
     public LayerMask groundMask;
     public Transform chkPos;
@@ -38,9 +40,11 @@ public class CharacterMove : MonoBehaviour
 
     public LayerMask wallLayer;
     public Transform wallchkPos;
-    public float wallChkDistance;
-    public float isRight = 1;
+    private float wallChkDistance = 0.5f;
+    private float isRight = 1;
     bool isWall;
+    private float wallJumpPower = 20;
+    public Transform groundChkBack;
     //bool isAlive = true;
 
     //bool isRunning = false;
@@ -69,17 +73,7 @@ public class CharacterMove : MonoBehaviour
 
         float x = Input.GetAxis("Horizontal");
 
-        if (isHitted)
-        {
-            if (sr.flipX)
-            {
-                rb.AddForce(new Vector2(2, 0), ForceMode2D.Impulse);
-            }
-            else
-            {
-                rb.AddForce(new Vector2(-2, 0), ForceMode2D.Impulse);
-            }
-        }
+
 
         switch (state)
         {
@@ -90,7 +84,7 @@ public class CharacterMove : MonoBehaviour
                 {
                     state = State_P.Run;
                 }
-                if (Input.GetAxis("Jump") != 0)
+                if (Input.GetAxisRaw("Jump") != 0)
                 {
                     state = State_P.Jump;
                     Jump();
@@ -100,7 +94,9 @@ public class CharacterMove : MonoBehaviour
                     state = State_P.Sit;
                 }
                 break;
-            case State_P.Run:
+
+
+            case State_P.Run:       //2
 
                 if (isSlope && isGrounded && !isJumping && angle < MaxAngle)
                 {
@@ -113,21 +109,17 @@ public class CharacterMove : MonoBehaviour
                 else
                     rb.velocity = new Vector2(x * speed, rb.velocity.y);
 
-                //if (x < 0)
-                //    {
-                //        sr.flipX = true;
-                //    }
-                //else if (x > 0)
-                //    {
-                //        sr.flipX = false;
-                //    }
-                Flip();
+
+                if ((x > 0 && isRight < 0) || (x < 0 && isRight > 0))
+                {
+                    Flip();
+                }
                 if (x == 0)
                 {
                     state = State_P.Idle;
                 }
 
-                if (Input.GetButtonDown("Jump"))
+                if (Input.GetAxisRaw("Jump") != 0)
                 {
                     Jump();
                     state = State_P.Jump;
@@ -138,7 +130,9 @@ public class CharacterMove : MonoBehaviour
                 }
 
                 break;
-            case State_P.Sit: //slide  따로 할지 생각 해두자
+
+
+            case State_P.Sit: //slide  따로 할지 생각 해두자     //3
 
                 isSit = true;
                 if (Input.GetAxis("Horizontal") != 0 && Input.GetAxis("Vertical") < 0)
@@ -156,6 +150,8 @@ public class CharacterMove : MonoBehaviour
                     Invoke("ReturnLayer", .5f);
                 }
                 break;
+
+
             case State_P.Jump:
                 if (Input.GetAxis("Horizontal") != 0)
                 {
@@ -166,44 +162,71 @@ public class CharacterMove : MonoBehaviour
                     state = State_P.Idle;
                 }
                 break;
-            case State_P.Attack:
+
+
+            case State_P.Attack:        //4
 
 
                 state = State_P.Idle;
                 break;
-            case State_P.Hit:
+
+
+            case State_P.Hit:           //5
 
                 isHitted = false;
                 state = State_P.Idle;
                 break;
-            case State_P.Slide:
+
+
+            case State_P.Slide:         //6
 
 
                 break;
-            case State_P.slideWall:
 
 
-                if (Input.GetButtonDown("Jump"))
+            case State_P.slideWall:         // 7 
+
+                rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.5f);
+                if(!isWall)
                 {
-                    rb.AddForce(new Vector2(0, jumpPower * 1.3f), ForceMode2D.Impulse);
                     state = State_P.Jump;
                 }
-                if (isGrounded && rb.velocity.y == 0)
+                if(isGrounded)
                 {
                     state = State_P.Idle;
                 }
+
+                if(Input.GetAxisRaw("Jump") != 0)
+                {
+
+                    isJumping = true;
+                    rb.velocity = new Vector2(isRight * 20 * wallJumpPower, 0.8f * wallJumpPower);
+                    Flip();
+                    state = State_P.Jump;
+                }
+
                 break;
+
+
+            //case State_P.Turn: // 8
+            //    if (x !=0 )
+            //    state = State_P.Run;
+
+            //    else
+            //        state = State_P.Idle;
+
+            //    break;
         }
         GroundChk();
         WallChk();
+        
 
-        if (x == 0)
+        if (x == 0)     // 언덕길 오를때 FreezePosition 코드
             rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
         else
             rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
-        RaycastHit2D hit = Physics2D.Raycast(chkPos.position, Vector2.down, distance, groundMask);
-
+        RaycastHit2D hit = Physics2D.Raycast(chkPos.position, Vector2.down, distance, groundMask); // 언덕길 오를때 언덕길 체크
         if (hit)
         {
             perp = Vector2.Perpendicular(hit.normal).normalized;
@@ -213,10 +236,20 @@ public class CharacterMove : MonoBehaviour
             else
                 isSlope = false;
         }
-        animator.SetInteger("State_P", (int)state);
+
+
+        animator.SetInteger("State", (int)state);
     }
+
+
+
     private void FixedUpdate()
     {
+        if (isWall)
+        {
+            state = State_P.slideWall;
+        }
+
         if (isGrounded)
         {
             state = State_P.Idle;
@@ -229,14 +262,34 @@ public class CharacterMove : MonoBehaviour
         {
             state = State_P.Idle;
         }
+        bool ground_front = Physics2D.Raycast(chkPos.position, Vector2.down, distance, groundMask);
+        bool ground_back = Physics2D.Raycast(groundChkBack.position, Vector2.down, distance, groundMask);
+
+        if (!isGrounded && (ground_front || ground_back))
+            rb.velocity = new Vector2(rb.velocity.x, 0);
+
+        if (ground_front || ground_back)
+            isGrounded = true;
+        else
+            isGrounded = false;
 
         if (Input.GetKeyDown(KeyCode.LeftShift))
         {
             Dash();
         }
+
+        if (isHitted) // 
+        {
+            if (isRight == 1)
+            {
+                rb.AddForce(new Vector2(2, 0), ForceMode2D.Impulse);
+            }
+            else if (isRight == -1)
+            {
+                rb.AddForce(new Vector2(-2, 0), ForceMode2D.Impulse);
+            }
+        }
     }
-
-
 
 
 
@@ -250,61 +303,32 @@ public class CharacterMove : MonoBehaviour
     }
     void Flip()
     {
-        float x = Input.GetAxis("Horizontal");
-        if (x > 0)
-        {
-            transform.eulerAngles = new Vector3(0, 0, 0);
-        }
-        else if (x < 0)
-        {
-            transform.eulerAngles = new Vector3(0, 180, 0);
-        }
-    }
-
-    void Slip()
-    {
-        if (canSlippery)
-        {
-            rb.AddForce(new Vector2(0, 0.3f), ForceMode2D.Impulse);
-        }
-    }
-    void WallJump()
-    {
-        if (canSlippery && Input.GetAxis("Horizontal") != 0 && Input.GetAxis("Jump") != 0)
-        {
-            rb.AddForce(new Vector2(0.5f, 1), ForceMode2D.Impulse);
-        }
+        transform.eulerAngles = new Vector3(0, Mathf.Abs(transform.eulerAngles.y - 180), 0);
+        isRight = isRight * -1;
     }
     void Dash()
     {
         if (state == State_P.Idle || state == State_P.Run || state == State_P.Jump)
         {
-            rb.AddForce(new Vector2(2, 0), ForceMode2D.Impulse);
+            rb.AddForce(new Vector2(20 * isRight, 20), ForceMode2D.Impulse);
         }
     }
     void Jump()
     {
-
         if (isGrounded)
         {
             if (Input.GetAxis("Jump") != 0)
             {
                 isJumping = true;
-                rb.AddForce(new Vector2(0, jumpPower), ForceMode2D.Impulse);
+                rb.velocity =new Vector2(0, jumpPower);
+                //rb.AddForce(new Vector2(0, jumpPower), ForceMode2D.Impulse);
             }
         }
     }
-
-    private void OnCollisionEnter2D(Collision2D other)
+    public void attack(Monster monster)
     {
-        if (other.gameObject.tag == "KickAbleWall" && !isGrounded)
-        {
-            isJumping = true;
-            state = State_P.slideWall;
-        }
-
-
+        state = State_P.Attack;
+        monster.GetDamage(GameManager.Instance.player.Damage);
     }
-
 
 }

@@ -8,29 +8,37 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-
     State_P state;
     Rigidbody2D rb;
+    public ParticleSystem deathParticle;
+
     public int Damage;
     private int curHp;
     public int maxHp;
     protected float HpAmount;
 
+    [HideInInspector]
+    public bool death = false; // public 으로 둘지 고민중
+
     private void Awake()
     {
-        rb = GameManager.Instance.Cmove.rb;
+        
         curHp = maxHp;
         HpAmount = curHp / maxHp;
-
     }
-    
-    
-    
-    public void attack()
+    private void Update()
     {
-        state = State_P.Attack;
-        GameManager.Instance.monster.GetDamage(Damage);
+        if(curHp <= 0)      // 패배 요소
+            death = true;
+
+        if (death)
+        {
+            Instantiate(deathParticle);
+            Destroy(gameObject);
+            GameManager.Instance.GameOver();
+        }
     }
+
     public int GetDamage(int damage)
     {
         state = State_P.Hit;
@@ -44,4 +52,15 @@ public class Player : MonoBehaviour
         Damage += Equip;
         return Damage;
     }
+    public void fallingDown()
+    {
+        curHp = 0;
+    }
+
+    public bool deathChk()
+    {
+        death = true;
+        return death;
+    }
+
 }

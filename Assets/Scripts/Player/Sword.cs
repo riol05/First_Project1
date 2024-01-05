@@ -8,7 +8,7 @@ public class Sword : MonoBehaviour
     {
         if (other.gameObject.tag == "Monster")
         {
-            GameManager.Instance.player.attack();
+            GameManager.Instance.Cmove.attack(other.gameObject.GetComponent<Monster>()); // ? 이건 검증 필요
         }
     }
 }

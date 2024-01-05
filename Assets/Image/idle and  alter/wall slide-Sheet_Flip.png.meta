@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 2221bc5d5f1d4f44ab50a23d85e04180
+guid: 02f558c0ea8e5a148aa15649ea437e4b
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -136,7 +136,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: wall slide-Sheet_0
+      name: wall slide-Sheet_Flip_0
       rect:
         serializedVersion: 2
         x: 0
@@ -144,20 +144,20 @@ TextureImporter:
         width: 80
         height: 64
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 17c74e7cee3b1914cba6641c62f65d83
-      internalID: 1347385257
+      spriteID: c88a891af14cd3b489a6d7e1d9d525ad
+      internalID: -55936722
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: wall slide-Sheet_1
+      name: wall slide-Sheet_Flip_1
       rect:
         serializedVersion: 2
         x: 80
@@ -165,20 +165,20 @@ TextureImporter:
         width: 80
         height: 64
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 8338ab32cf6d0cc44b519e30359b5aeb
-      internalID: 551834291
+      spriteID: c6c9890a57976484ebc6ee55113b22a4
+      internalID: 1536239710
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: wall slide-Sheet_2
+      name: wall slide-Sheet_Flip_2
       rect:
         serializedVersion: 2
         x: 160
@@ -186,20 +186,20 @@ TextureImporter:
         width: 80
         height: 64
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: d2a9b1634978ca34ba6fdce32761a6be
-      internalID: -1353902568
+      spriteID: da5ef09ad37e49f4eadff95195b22a70
+      internalID: -1817316965
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: wall slide-Sheet_3
+      name: wall slide-Sheet_Flip_3
       rect:
         serializedVersion: 2
         x: 240
@@ -207,14 +207,14 @@ TextureImporter:
         width: 80
         height: 64
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: f9d4f054a7af829459b50cc903c49830
-      internalID: 1283115760
+      spriteID: a26a00354784ad14b8515239e00840f7
+      internalID: -118547617
       vertices: []
       indices: 
       edges: []
@@ -230,10 +230,10 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      wall slide-Sheet_0: 1347385257
-      wall slide-Sheet_1: 551834291
-      wall slide-Sheet_2: -1353902568
-      wall slide-Sheet_3: 1283115760
+      wall slide-Sheet_Flip_0: -55936722
+      wall slide-Sheet_Flip_1: 1536239710
+      wall slide-Sheet_Flip_2: -1817316965
+      wall slide-Sheet_Flip_3: -118547617
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
