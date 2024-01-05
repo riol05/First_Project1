@@ -26,6 +26,7 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         player = playerPrefab.GetComponent<Player>();
+        
         if( Instance != null)
         {
             DestroyImmediate(Instance);
