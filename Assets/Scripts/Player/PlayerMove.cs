@@ -6,13 +6,13 @@ public enum State_P
 {
     Idle   = 0,
     Run    = 1,
-    Sit    = 2,
+    Dash    = 2,
     Jump   = 3,
     Attack = 4,
     Hit    = 5,
     Slide  = 6,
     slideWall = 7,
-    Turn   = 8
+    //Turn   = 8
 }
 
 public class PlayerMove : MonoBehaviour
@@ -34,7 +34,6 @@ public class PlayerMove : MonoBehaviour
     public Transform chkPos;
     private Vector2 perp;
     private float angle;
-    public float checkRadius;
     public float distance;
     bool isSlope;
 
@@ -47,15 +46,18 @@ public class PlayerMove : MonoBehaviour
     public Transform groundChkBack;
     //bool isAlive = true;
 
-    //bool isRunning = false;
-    bool isSit = false;
+    bool isDash = false;
+    public float dashSpeed =30;
+    private float defaultTime = 0.1f;
+    private float defaultSpeed;
+    private float dashTime ;
+
     bool isJumping = false;
     bool isHitted = false;
     bool canSlippery = false;
 
     //bool onRadder = true;
     bool isGrounded = true;
-    bool onPlat = true;
 
     private void Awake()
     {
@@ -71,9 +73,8 @@ public class PlayerMove : MonoBehaviour
     private void Update()
     {
 
+
         float x = Input.GetAxis("Horizontal");
-
-
 
         switch (state)
         {
@@ -89,9 +90,10 @@ public class PlayerMove : MonoBehaviour
                     state = State_P.Jump;
                     Jump();
                 }
-                if (Input.GetAxisRaw("Vertical") < 0)
+                if (Input.GetKeyDown(KeyCode.LeftShift))
                 {
-                    state = State_P.Sit;
+                    state = State_P.Dash; // 대쉬로 바꾸자
+
                 }
                 break;
 
@@ -124,38 +126,57 @@ public class PlayerMove : MonoBehaviour
                     Jump();
                     state = State_P.Jump;
                 }
-                if (Input.GetAxisRaw("Vertical") < 0)
+                if (Input.GetKeyDown(KeyCode.LeftShift))
                 {
-                    state = State_P.Sit;
+                    state = State_P.Dash; // 대쉬로 바꾸자
+
                 }
 
                 break;
 
 
-            case State_P.Sit: //slide  따로 할지 생각 해두자     //3
+            case State_P.Dash:
+                
+                isDash = true;
 
-                isSit = true;
-                if (Input.GetAxis("Horizontal") != 0 && Input.GetAxis("Vertical") < 0)
+                if (dashTime <= 0)
                 {
-                    rb.velocity = new Vector2(x * speed / 2, rb.velocity.y);
+                    defaultSpeed = speed;
+                    if (isDash)
+                        dashTime = defaultTime;
                 }
-                if (Input.GetAxisRaw("Vertical") >= 0)
+                else
                 {
-                    state = State_P.Idle;
+                    dashTime -= Time.deltaTime;
+                    defaultSpeed = dashSpeed;
+                }
+                isDash = false;
+
+                if (isGrounded)
+                {
+                state = State_P.Idle;
+                }
+                else if (isJumping)
+                {
+                    state = State_P.Jump;
+                }
+                else if (Input.GetAxis("Horizontal") != 0)
+                {
+                    state = State_P.Run;
                 }
 
-                if (Input.GetButtonDown("Jump") && onPlat)
-                {
-                    gameObject.layer = LayerMask.NameToLayer("Throughing");
-                    Invoke("ReturnLayer", .5f);
-                }
-                break;
+                    break;
 
 
             case State_P.Jump:
                 if (Input.GetAxis("Horizontal") != 0)
                 {
                     rb.velocity = new Vector2(x * speed, rb.velocity.y);
+                }
+                if (Input.GetKeyDown(KeyCode.LeftShift))
+                {
+                    state = State_P.Dash; // 대쉬로 바꾸자
+
                 }
                 if (isGrounded)
                 {
@@ -296,6 +317,7 @@ public class PlayerMove : MonoBehaviour
     void GroundChk()
     {
         isGrounded = Physics2D.Raycast(chkPos.position, Vector2.down, distance, groundMask);
+        isJumping = !isGrounded;
     }
     void WallChk()
     {
@@ -324,11 +346,24 @@ public class PlayerMove : MonoBehaviour
                 //rb.AddForce(new Vector2(0, jumpPower), ForceMode2D.Impulse);
             }
         }
+        
     }
     public void attack(Monster monster)
     {
         state = State_P.Attack;
         monster.GetDamage(GameManager.Instance.player.Damage);
+    }
+
+
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if(isGrounded)
+        { 
+            if(other.collider.tag == "Ground")
+            {
+                rb.velocity = new Vector2(0, 0.01f);
+            }
+        }
     }
 
 }

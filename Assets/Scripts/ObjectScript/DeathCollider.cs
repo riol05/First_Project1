@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class WillDeathThisCollider : MonoBehaviour
@@ -19,6 +20,10 @@ public class WillDeathThisCollider : MonoBehaviour
             print("123");
             GameManager.Instance.player.fallingDown();
             //GameManager.Instance.player.GetDamage(damage);
+        }
+        else
+        {
+            Destroy(other.collider.gameObject);
         }
     }
 }

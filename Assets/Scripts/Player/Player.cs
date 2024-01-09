@@ -8,7 +8,7 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    State_P state;
+    State_P state ;
     Rigidbody2D rb;
     public ParticleSystem deathParticle;
 
@@ -63,4 +63,9 @@ public class Player : MonoBehaviour
         return death;
     }
 
+    public int Heal(int HealPoint)
+    {
+        curHp += HealPoint;
+        return curHp;
+    }
 }
