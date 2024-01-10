@@ -4,22 +4,23 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    SceneLoader sceneLoader;
-    
+    [HideInInspector]
+    public SceneLoader sceneLoader;
     [HideInInspector]
     public PlayerMove Cmove;
     [HideInInspector]
     public Monster monster;
     [HideInInspector]
     public Player player;
+    EndText endText;
 
     public Transform playerPrefab;
     public Transform[] monstersPrefab;
     public Transform thisGoal;
-    
+    public int stageNum = 0;
 
     bool win;
-    bool lose;    
+    public bool lose;    
     
     public static GameManager Instance { get; private set; }
 
@@ -43,18 +44,24 @@ public class GameManager : MonoBehaviour
         }
         lose = player.death;
         GameOver();
+        sceneLoader.StageLoader();
     }
 
     public void GameOver()
     {
         if (lose)
         {
-            sceneLoader.EndSceneLoad();// 파레트에서 lose 이미지 출력
+            endText.showIsWin();
+           // sceneLoader.EndSceneLoad();// 파레트에서 lose 이미지 출력
         }
     }
     public bool chkGoal()
     {
-        win = true;
+        if (Vector2.Distance(playerPrefab.transform.position, thisGoal.transform.position) <= 0.5f)
+        {
+            win = true;
+            ++stageNum;
+        }
         return win;
     }
 

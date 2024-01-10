@@ -28,15 +28,8 @@ public class Player : MonoBehaviour
     }
     private void Update()
     {
-        if(curHp <= 0)      // 패배 요소
-            death = true;
-
-        if (death)
-        {
-            Instantiate(deathParticle);
-            Destroy(gameObject);
-            GameManager.Instance.GameOver();
-        }
+        deathChk();
+        Death();
     }
 
     public int GetDamage(int damage)
@@ -57,10 +50,22 @@ public class Player : MonoBehaviour
         curHp = 0;
     }
 
-    public bool deathChk()
+    private bool deathChk()
     {
-        death = true;
+        if (curHp <= 0)      // 패배 요소
+            death = true;
+        
+        
         return death;
+    }
+    private void Death()
+    {
+        if (death)
+        {
+            //Instantiate(deathParticle); // 파티클 만들었을때 넣자
+            Destroy(gameObject);
+            GameManager.Instance.GameOver();
+        }
     }
 
     public int Heal(int HealPoint)

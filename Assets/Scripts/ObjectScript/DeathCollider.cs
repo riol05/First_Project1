@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class WillDeathThisCollider : MonoBehaviour
+public class WillDeathThisCollider : MonoBehaviour // ¹Ù´Ú¿¡ ±ò¸° ÄÝ¶óÀÌ´õ ³«»ç ÆÇÁ¤
 {
-    Rigidbody2D rb;
-    //int damage;
+    Rigidbody2D rb;     
     private void Awake()
     {
-      //  damage = 9999;    
         rb = GetComponent<Rigidbody2D>();
     }
 
@@ -17,9 +15,7 @@ public class WillDeathThisCollider : MonoBehaviour
     {
         if(other.collider.tag == "Player")
         {
-            print("123");
             GameManager.Instance.player.fallingDown();
-            //GameManager.Instance.player.GetDamage(damage);
         }
         else
         {

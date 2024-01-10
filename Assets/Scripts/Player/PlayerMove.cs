@@ -39,7 +39,7 @@ public class PlayerMove : MonoBehaviour
 
     public LayerMask wallLayer;
     public Transform wallchkPos;
-    private float wallChkDistance = 0.5f;
+    private float wallChkDistance = 0.3f;
     private float isRight = 1;
     bool isWall;
     private float wallJumpPower = 20;
@@ -47,17 +47,16 @@ public class PlayerMove : MonoBehaviour
     //bool isAlive = true;
 
     bool isDash = false;
-    public float dashSpeed =30;
+    public float dashSpeed =50;
     private float defaultTime = 0.1f;
     private float defaultSpeed;
     private float dashTime ;
 
     bool isJumping = false;
     bool isHitted = false;
-    bool canSlippery = false;
 
-    //bool onRadder = true;
     bool isGrounded = true;
+    //bool canSlippery = false;
 
     private void Awake()
     {
@@ -78,7 +77,6 @@ public class PlayerMove : MonoBehaviour
 
         switch (state)
         {
-
             case State_P.Idle:
 
                 if (Input.GetAxis("Horizontal") != 0)
@@ -92,7 +90,7 @@ public class PlayerMove : MonoBehaviour
                 }
                 if (Input.GetKeyDown(KeyCode.LeftShift))
                 {
-                    state = State_P.Dash; // 대쉬로 바꾸자
+                    state = State_P.Dash;
 
                 }
                 break;
@@ -106,7 +104,7 @@ public class PlayerMove : MonoBehaviour
                 }
                 else if (!isSlope && isGrounded && !isJumping)
                 {
-                    rb.velocity = new Vector2(Input.GetAxis("Horizontal") * speed, 0);
+                    rb.velocity = new Vector2(Input.GetAxis("Horizontal") * speed, -0.2f);
                 }
                 else
                     rb.velocity = new Vector2(x * speed, rb.velocity.y);
@@ -128,8 +126,7 @@ public class PlayerMove : MonoBehaviour
                 }
                 if (Input.GetKeyDown(KeyCode.LeftShift))
                 {
-                    state = State_P.Dash; // 대쉬로 바꾸자
-
+                    state = State_P.Dash;
                 }
 
                 break;
@@ -240,12 +237,12 @@ public class PlayerMove : MonoBehaviour
         }
         GroundChk();
         WallChk();
-        
 
-        if (x == 0)     // 언덕길 오를때 FreezePosition 코드
-            rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
-        else
-            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+            if (x == 0)     // 언덕길 오를때 FreezePosition 코드
+                rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
+            else
+                rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        
 
         RaycastHit2D hit = Physics2D.Raycast(chkPos.position, Vector2.down, distance, groundMask); // 언덕길 오를때 언덕길 체크
         if (hit)
@@ -275,14 +272,14 @@ public class PlayerMove : MonoBehaviour
         {
             state = State_P.Idle;
         }
-        if (canSlippery && Input.GetAxis("Horizontal") != 0)
-        {
-            state = State_P.slideWall;
-        }
-        else if (canSlippery && Input.GetAxis("Horizontal") == 0)
-        {
-            state = State_P.Idle;
-        }
+        //if (canSlippery && Input.GetAxis("Horizontal") != 0)
+        //{
+        //    state = State_P.slideWall;
+        //}
+        //else if (canSlippery && Input.GetAxis("Horizontal") == 0)
+        //{
+        //    state = State_P.Idle;
+        //}
         bool ground_front = Physics2D.Raycast(chkPos.position, Vector2.down, distance, groundMask);
         bool ground_back = Physics2D.Raycast(groundChkBack.position, Vector2.down, distance, groundMask);
 
@@ -310,6 +307,7 @@ public class PlayerMove : MonoBehaviour
                 rb.AddForce(new Vector2(-2, 0), ForceMode2D.Impulse);
             }
         }
+        
     }
 
 
@@ -363,7 +361,13 @@ public class PlayerMove : MonoBehaviour
             {
                 rb.velocity = new Vector2(0, 0.01f);
             }
+            if(other.collider.tag == "Plat")
+            {
+                rb.velocity = new Vector2(0, 0.01f);
+            }
         }
+
+        
     }
 
 }

@@ -2,13 +2,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-public class UIController : MonoBehaviour
+public class ScoreText : MonoBehaviour
 {
-    public Text StageNum;
-
-
     private void Update()
     {
-
+        GetComponent<Text>().text = "Stage" + (GameManager.Instance.stageNum + 1);
     }
+
+    
 }

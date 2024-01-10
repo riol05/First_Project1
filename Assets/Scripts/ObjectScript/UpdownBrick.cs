@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class UpdownBrick : MonoBehaviour
 {
+    private Rigidbody2D rb;
     public Transform desPos;
     public Transform startPos;
     public Transform endPos;
@@ -12,13 +13,14 @@ public class UpdownBrick : MonoBehaviour
 
     private void Awake()
     {
+        rb = GetComponent<Rigidbody2D>();
         transform.position = startPos.position;
         desPos = endPos;
     }
     private void FixedUpdate()
-    {
-        transform.position = Vector2.MoveTowards(transform.position, desPos.position, Time.deltaTime * movingSpeed);
-        if (Vector2.Distance(transform.position, desPos.position) <= 0.5f)
+    {   // transform.position
+        rb.position = Vector2.MoveTowards(transform.position, desPos.position, Time.deltaTime * movingSpeed);
+        if (Vector2.Distance(transform.position, desPos.position) <= 0.6f)
         {
             if (desPos == endPos)
                 desPos = startPos;
@@ -28,4 +30,6 @@ public class UpdownBrick : MonoBehaviour
 
         }
     }
+
+
 }
