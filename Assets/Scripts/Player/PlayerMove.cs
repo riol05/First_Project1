@@ -4,13 +4,13 @@ using UnityEngine;
 using static UnityEditor.Experimental.GraphView.GraphView;
 public enum State_P
 {
-    Idle   = 0,
-    Run    = 1,
-    Dash    = 2,
-    Jump   = 3,
+    Idle = 0,
+    Run = 1,
+    Dash = 2,
+    Jump = 3,
     Attack = 4,
-    Hit    = 5,
-    Slide  = 6,
+    Hit = 5,
+    Slide = 6,
     slideWall = 7,
     //Turn   = 8
 }
@@ -25,7 +25,7 @@ public class PlayerMove : MonoBehaviour
 
     [HideInInspector]
     public Rigidbody2D rb;
-    
+
     private SpriteRenderer sr;
     private Animator animator;
     private CapsuleCollider2D cc;
@@ -44,19 +44,20 @@ public class PlayerMove : MonoBehaviour
     bool isWall;
     private float wallJumpPower = 20;
     public Transform groundChkBack;
-    //bool isAlive = true;
+    //private float DontslidingNow = 1;
 
-    bool isDash = false;
-    public float dashSpeed =50;
-    private float defaultTime = 0.1f;
-    private float defaultSpeed;
-    private float dashTime ;
+    public float DashCoolDown;
+    public bool DashReady;
+    private Coroutine dashRoutine = null;
+    private bool isDash = false;
+    private float dashTime;
+    private float maxaDashTime = 0.5f;
+    Ghost ghost;
 
     bool isJumping = false;
     bool isHitted = false;
 
     bool isGrounded = true;
-    //bool canSlippery = false;
 
     private void Awake()
     {
@@ -65,6 +66,7 @@ public class PlayerMove : MonoBehaviour
         sr = GetComponentInChildren<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
         cc = GetComponent<CapsuleCollider2D>();
+        ghost = GetComponent<Ghost>();
     }
 
     public float MaxAngle;
@@ -90,7 +92,10 @@ public class PlayerMove : MonoBehaviour
                 }
                 if (Input.GetKeyDown(KeyCode.LeftShift))
                 {
-                    state = State_P.Dash;
+                    if (DashReady)
+                    {
+                        state = State_P.Dash;
+                    }
 
                 }
                 break;
@@ -126,43 +131,38 @@ public class PlayerMove : MonoBehaviour
                 }
                 if (Input.GetKeyDown(KeyCode.LeftShift))
                 {
-                    state = State_P.Dash;
+                    if (DashReady)
+                    {
+                        state = State_P.Dash;
+                    }
+
                 }
 
                 break;
 
 
             case State_P.Dash:
-                
-                isDash = true;
 
-                if (dashTime <= 0)
+                if(dashRoutine == null)
                 {
-                    defaultSpeed = speed;
-                    if (isDash)
-                        dashTime = defaultTime;
+                    dashRoutine = StartCoroutine(dash());
                 }
-                else
-                {
-                    dashTime -= Time.deltaTime;
-                    defaultSpeed = dashSpeed;
-                }
-                isDash = false;
 
-                if (isGrounded)
+
+                if (isGrounded && Input.GetAxis("Horizontal") == 0)
                 {
-                state = State_P.Idle;
+                    state = State_P.Idle;
                 }
-                else if (isJumping)
+                else if (isJumping || isJumping && Input.GetAxis("Horizontal") != 0)
                 {
                     state = State_P.Jump;
                 }
-                else if (Input.GetAxis("Horizontal") != 0)
+                else if (isGrounded && Input.GetAxis("Horizontal") != 0)
                 {
                     state = State_P.Run;
                 }
 
-                    break;
+                break;
 
 
             case State_P.Jump:
@@ -170,9 +170,13 @@ public class PlayerMove : MonoBehaviour
                 {
                     rb.velocity = new Vector2(x * speed, rb.velocity.y);
                 }
+                
                 if (Input.GetKeyDown(KeyCode.LeftShift))
                 {
-                    state = State_P.Dash; // 대쉬로 바꾸자
+                    if (DashReady)
+                    {
+                        state = State_P.Dash;
+                    }
 
                 }
                 if (isGrounded)
@@ -205,44 +209,36 @@ public class PlayerMove : MonoBehaviour
             case State_P.slideWall:         // 7 
 
                 rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y * 0.5f);
-                if(!isWall)
+                if (!isWall)
                 {
                     state = State_P.Jump;
                 }
-                if(isGrounded)
+                if (isGrounded)
                 {
                     state = State_P.Idle;
                 }
 
-                if(Input.GetAxisRaw("Jump") != 0)
+                if (Input.GetAxisRaw("Jump") != 0)
                 {
+                    //DontslidingNow = .5f; // 벽 슬라이딩 쿨타임
 
                     isJumping = true;
-                    rb.velocity = new Vector2(isRight * 20 * wallJumpPower, 0.8f * wallJumpPower);
+                    rb.velocity = new Vector2(isRight * 2 * wallJumpPower, 0.8f * wallJumpPower);
                     Flip();
                     state = State_P.Jump;
                 }
 
                 break;
 
-
-            //case State_P.Turn: // 8
-            //    if (x !=0 )
-            //    state = State_P.Run;
-
-            //    else
-            //        state = State_P.Idle;
-
-            //    break;
         }
         GroundChk();
         WallChk();
 
-            if (x == 0)     // 언덕길 오를때 FreezePosition 코드
-                rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
-            else
-                rb.constraints = RigidbodyConstraints2D.FreezeRotation;
-        
+        if (x == 0)     // 언덕길 오를때 FreezePosition 코드
+            rb.constraints = RigidbodyConstraints2D.FreezePositionX | RigidbodyConstraints2D.FreezeRotation;
+        else
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+
 
         RaycastHit2D hit = Physics2D.Raycast(chkPos.position, Vector2.down, distance, groundMask); // 언덕길 오를때 언덕길 체크
         if (hit)
@@ -254,32 +250,34 @@ public class PlayerMove : MonoBehaviour
             else
                 isSlope = false;
         }
-
-
         animator.SetInteger("State", (int)state);
+        
+        DashCoolDown -= Time.deltaTime; // 대쉬쿨
+        //DontslidingNow -= Time.deltaTime; //슬라이딩쿨
     }
 
 
 
     private void FixedUpdate()
     {
+        DashReady = DashCoolDown <= 0; // 대쉬 불 변수
+
+
         if (isWall)
         {
-            state = State_P.slideWall;
+           state = State_P.slideWall;
         }
 
         if (isGrounded)
         {
+            if (Input.GetAxis("Horizontal") != 0)
+            state = State_P.Run;
+
+            else
             state = State_P.Idle;
         }
-        //if (canSlippery && Input.GetAxis("Horizontal") != 0)
-        //{
-        //    state = State_P.slideWall;
-        //}
-        //else if (canSlippery && Input.GetAxis("Horizontal") == 0)
-        //{
-        //    state = State_P.Idle;
-        //}
+
+
         bool ground_front = Physics2D.Raycast(chkPos.position, Vector2.down, distance, groundMask);
         bool ground_back = Physics2D.Raycast(groundChkBack.position, Vector2.down, distance, groundMask);
 
@@ -290,11 +288,6 @@ public class PlayerMove : MonoBehaviour
             isGrounded = true;
         else
             isGrounded = false;
-
-        if (Input.GetKeyDown(KeyCode.LeftShift))
-        {
-            Dash();
-        }
 
         if (isHitted) // 
         {
@@ -307,9 +300,8 @@ public class PlayerMove : MonoBehaviour
                 rb.AddForce(new Vector2(-2, 0), ForceMode2D.Impulse);
             }
         }
-        
-    }
 
+    }
 
 
     void GroundChk()
@@ -326,13 +318,44 @@ public class PlayerMove : MonoBehaviour
         transform.eulerAngles = new Vector3(0, Mathf.Abs(transform.eulerAngles.y - 180), 0);
         isRight = isRight * -1;
     }
-    void Dash()
+
+    //void Dash()
+    //{
+    //    ghost.makeGhost = true;
+    //    dashTime += Time.deltaTime;
+    //    isDash = true;
+
+    //    if (isDash)
+    //    {
+    //        rb.velocity = new Vector2(-isRight * (speed * 5), rb.velocity.y);
+    //    }
+    //    if (dashTime >= maxaDashTime)
+    //    {
+    //        dashTime = 0;
+    //        isDash = false;
+    //        ghost.makeGhost = false;
+    //    }
+    //}
+    IEnumerator dash()
     {
-        if (state == State_P.Idle || state == State_P.Run || state == State_P.Jump)
+        ghost.makeGhost = true;
+        isDash = true;
+        dashTime = 0f;
+        
+        while (dashTime <= maxaDashTime)
         {
-            rb.AddForce(new Vector2(20 * isRight, 20), ForceMode2D.Impulse);
+            
+            dashTime += Time.deltaTime;
+            rb.velocity = new Vector2(isRight * (speed * 3), rb.velocity.y);
+            yield return null;
         }
+        isDash = false;
+        dashTime = 0f;
+        ghost.makeGhost = false;
+        dashRoutine = null;
+        DashCoolDown = 3f;
     }
+
     void Jump()
     {
         if (isGrounded)
@@ -340,11 +363,11 @@ public class PlayerMove : MonoBehaviour
             if (Input.GetAxis("Jump") != 0)
             {
                 isJumping = true;
-                rb.velocity =new Vector2(0, jumpPower);
+                rb.velocity = new Vector2(0, jumpPower);
                 //rb.AddForce(new Vector2(0, jumpPower), ForceMode2D.Impulse);
             }
         }
-        
+
     }
     public void attack(Monster monster)
     {
@@ -355,19 +378,19 @@ public class PlayerMove : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D other)
     {
-        if(isGrounded)
-        { 
-            if(other.collider.tag == "Ground")
+        if (isGrounded)
+        {
+            if (other.collider.tag == "Ground")
             {
                 rb.velocity = new Vector2(0, 0.01f);
             }
-            if(other.collider.tag == "Plat")
+            if (other.collider.tag == "Plat")
             {
                 rb.velocity = new Vector2(0, 0.01f);
             }
         }
 
-        
+
     }
 
 }

@@ -27,6 +27,7 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         player = playerPrefab.GetComponent<Player>();
+        Cmove = playerPrefab.GetComponent<PlayerMove>();
         
         if( Instance != null)
         {
