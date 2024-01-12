@@ -407,6 +407,7 @@ public class PlayerMove : MonoBehaviour
             yield return new WaitForSeconds (0.25f);
             Attacktime = 0f;
             Attacktime += Time.deltaTime;
+            AttackPrefab.SetActive(false);
             ++AttackNum;
         }
         if(Attacktime >= 1f)
@@ -419,12 +420,15 @@ public class PlayerMove : MonoBehaviour
                     
                     yield return new WaitForSeconds(0.25f);
                     ++AttackNum;
+                    Attacktime = 0f;
+                    Attacktime += Time.deltaTime;
                 }
                 else if (AttackNum == 2)
                 {
                     state = State_P.Attack3;
 
                     yield return new WaitForSeconds(0.25f);
+
                     ++AttackNum;
                 }
                 else if (AttackNum == 3)
