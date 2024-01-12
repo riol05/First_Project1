@@ -67,6 +67,11 @@ public class Player : MonoBehaviour
             GameManager.Instance.GameOver();
         }
     }
+    public void attack(GameObject monster)
+    {
+        state = State_P.Attack1;
+        GameManager.Instance.monster.GetDamage(Damage);
+    }
 
     public int Heal(int HealPoint)
     {

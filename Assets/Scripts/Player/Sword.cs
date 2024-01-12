@@ -4,11 +4,17 @@ using UnityEngine;
 
 public class Sword : MonoBehaviour
 {
-    private void OnCollisionEnter2D(Collision2D other)
+    Rigidbody2D rb;
+
+    private void Awake()
+    {
+        rb = GetComponent<Rigidbody2D>();
+    }
+    private void OnTriggerEnter2D(Collider2D other)
     {
         if (other.gameObject.tag == "Monster")
         {
-            GameManager.Instance.Cmove.attack(other.gameObject.GetComponent<Monster>()); // ? 이건 검증 필요
+            GameManager.Instance.player.attack(other.gameObject);
         }
     }
 }

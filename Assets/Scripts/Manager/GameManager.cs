@@ -53,7 +53,6 @@ public class GameManager : MonoBehaviour
         if (lose)
         {
             endText.showIsWin();
-           // sceneLoader.EndSceneLoad();// 파레트에서 lose 이미지 출력
         }
     }
     public bool chkGoal()
