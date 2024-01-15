@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour
     public Monster monster;
     [HideInInspector]
     public Player player;
-    EndText endText;
+    public Transform endText;
 
     public Transform playerPrefab;
     public Transform[] monstersPrefab;
@@ -52,7 +52,7 @@ public class GameManager : MonoBehaviour
     {
         if (lose)
         {
-            endText.showIsWin();
+            endText.gameObject.SetActive(true);
         }
     }
     public bool chkGoal()
