@@ -387,7 +387,8 @@ public class PlayerMove : MonoBehaviour
         DashCoolDown -= Time.deltaTime; // ´ë½¬Äð
         DontslidingNow -= Time.deltaTime; //½½¶óÀÌµùÄð
         CantSliding -= Time.deltaTime;
-        
+
+        Attacktime += Time.deltaTime;
         if (Input.GetKeyDown(KeyCode.LeftControl))
         {
             ++AttackNum;
@@ -492,7 +493,6 @@ public class PlayerMove : MonoBehaviour
     IEnumerator Attack()
     {
         Attacktime = 0;
-        Attacktime += Time.deltaTime;
         isAttack = true;
 
         while (Attacktime <= 4f)
