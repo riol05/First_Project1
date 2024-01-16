@@ -46,7 +46,7 @@ public class PlayerMove : MonoBehaviour
     bool isWall;
     private float wallJumpPower = 20;
     public Transform groundChkBack;
-    private float DontslidingNow = 0.5f;
+    private float DontslidingNow;
     private float CantSliding = 0.7f;
 
     [HideInInspector]
@@ -112,6 +112,7 @@ public class PlayerMove : MonoBehaviour
                 {
                     if (!isAttack)
                     {
+                        Attacktime = 0;
                         if (AttackRoutine == null)
                         {
                             AttackRoutine = StartCoroutine(Attack());
@@ -156,11 +157,15 @@ public class PlayerMove : MonoBehaviour
                         state = State_P.Dash;
                     }
                 }
-                if (Input.GetKey(KeyCode.LeftControl))
+                if (Input.GetKeyDown(KeyCode.LeftControl))
                 {
                     if (!isAttack)
                     {
-                        state = State_P.Attack1;
+                        Attacktime = 0;
+                        if (AttackRoutine == null)
+                        {
+                            AttackRoutine = StartCoroutine(Attack());
+                        }
                     }
                 }
 
@@ -190,6 +195,7 @@ public class PlayerMove : MonoBehaviour
 
 
             case State_P.Jump:
+                
                 if (Input.GetAxis("Horizontal") != 0)
                 {
                     rb.velocity = new Vector2(x * speed, rb.velocity.y);
@@ -209,35 +215,21 @@ public class PlayerMove : MonoBehaviour
                 {
                     state = State_P.Idle;
                 }
-                if (Input.GetKey(KeyCode.LeftControl))
+                if (Input.GetKeyDown(KeyCode.LeftControl))
                 {
-                    state = State_P.Attack1;
+                        state = State_P.Jump;
                 }
+
                 break;
 
 
             case State_P.Attack1:        //4
-
-                
-                //if (AttackRoutine == null)
-                //{
-                //    AttackRoutine = StartCoroutine(Attack());
-                //    AttackRoutine = null;
-                //}
-                //if (Attacktime <= 1f)
-                //{
-                //    if (Input.GetKey(KeyCode.LeftControl))
-                //    {
-                //        ++AttackNum;
-                //        state = State_P.Attack2;
-                //    }
-                //}
-                //if (Attacktime > 1f)
-                //{
-                //    state = State_P.Idle;
-                //}
+                if (Attacktime < .5f)
+                {
+                    state = State_P.Attack1;
+                }
+                state = State_P.Idle;
                 break;
-
 
             case State_P.Hit:           //5 이건 힛 스테이트
 
@@ -245,95 +237,39 @@ public class PlayerMove : MonoBehaviour
                 state = State_P.Idle;
                 break;
 
-
             case State_P.Attack2:         //6
-
-                //if (AttackRoutine == null)
-                //{
-                //    AttackRoutine = StartCoroutine(Attack());
-                //    AttackRoutine = null;
-                //}
-                //if (Attacktime <= 1f)
-                //{
-                //    if (Input.GetKey(KeyCode.LeftControl))
-                //    {
-                //        ++AttackNum;
-                //        state = State_P.Attack3;
-                //    }
-                //}
-                //else
-                //    {
-                //        state = State_P.Idle;
-                //    }                
+                if(Attacktime <.5f)
+                {
+                    state = State_P.Attack2;
+                }
+                state = State_P.Idle;
                 break;
-
             case State_P.Attack3:         // 8
-
-                //if (AttackRoutine == null)
-                //{
-                //    AttackRoutine = StartCoroutine(Attack());
-                //    AttackRoutine = null;
-                //}
-                //if (Attacktime <= 1f)
-                //{
-                //    if (Input.GetKey(KeyCode.LeftControl))
-                //    {
-                //        ++AttackNum;
-                //        state = State_P.Attack4;
-                //    }
-                //}
-                //else
-                //    {
-                //        state = State_P.Idle;
-                //    }
+                if (Attacktime < .5f)
+                {
+                    state = State_P.Attack3;
+                }
+                state = State_P.Idle;
                 break;
             case State_P.Attack4:         // 9
-
-                //if (AttackRoutine == null)
-                //{
-                //    AttackRoutine = StartCoroutine(Attack());
-                //AttackRoutine = null;
-                //}
-                //if (Attacktime <= 1f)
-                //{
-                //    if (Input.GetKey(KeyCode.LeftControl))
-                //    {
-                //        ++AttackNum; 
-                //        state = State_P.Attack_F;
-                //    }
-                //}
-                //else
-                //{
-                //    state = State_P.Idle;
-                //}
+                if (Attacktime < .5f)
+                {
+                    state = State_P.Attack4;
+                }
+                state = State_P.Idle;
                 break;
-
             case State_P.Attack_F:         // 10
-
-                
-                //if (AttackRoutine == null)
-                //{
-                //    AttackRoutine = StartCoroutine(Attack());
-                //AttackRoutine = null;
-                //}
-                //if (Attacktime <= 1.5f)
-                //{
-                //    if (Input.GetKey(KeyCode.LeftControl))
-                //    {
-                //        state = State_P.Attack1;
-                //    }
-                //}
-                //else
-                //{
-                //    state = State_P.Idle;
-                //}
+                if (Attacktime < .7f)
+                {
+                    state = State_P.Attack_F;
+                }
+                state = State_P.Idle;
                 break;
-
 
             case State_P.slideWall:         // 7 
 
-                DontslidingNow = .6f;
-                rb.velocity = new Vector2(0, rb.velocity.y * 0.5f);
+                DontslidingNow = 0;
+                rb.velocity = new Vector2(0 , rb.velocity.y * 0.5f);
 
                 if (!isWall)
                 {
@@ -346,7 +282,7 @@ public class PlayerMove : MonoBehaviour
 
                 if (Input.GetAxisRaw("Jump") != 0)
                 {
-                    //DontslidingNow = .6f; // 벽 슬라이딩 쿨타임
+                    DontslidingNow = .7f; // 벽 슬라이딩 쿨타임
                     if (x != 0)
                     {
                         if (CantSliding <= 0)
@@ -387,18 +323,18 @@ public class PlayerMove : MonoBehaviour
         DashCoolDown -= Time.deltaTime; // 대쉬쿨
         DontslidingNow -= Time.deltaTime; //슬라이딩쿨
         CantSliding -= Time.deltaTime;
-
         Attacktime += Time.deltaTime;
-        if (Input.GetKeyDown(KeyCode.LeftControl))
+
+
+        if (Input.GetKeyDown(KeyCode.LeftControl) && !isAttack && (state == State_P.Idle|| state == State_P.Run))
         {
-            ++AttackNum;
             Attacktime = 0;
         }
-
-        if (Attacktime > 4)
+        
+        if (Attacktime > 3f)
         {
-            state = State_P.Idle;
             AttackNum = 0;
+            Attacktime = 0;
         }
     }
 
@@ -413,7 +349,7 @@ public class PlayerMove : MonoBehaviour
         {
             if (DontslidingNow <= 0)
             {
-
+                
                 state = State_P.slideWall;
             }
         }
@@ -427,7 +363,6 @@ public class PlayerMove : MonoBehaviour
                 state = State_P.Idle;
         }
 
-
         bool ground_front = Physics2D.Raycast(chkPos.position, Vector2.down, distance, groundMask);
         bool ground_back = Physics2D.Raycast(groundChkBack.position, Vector2.down, distance, groundMask);
 
@@ -435,7 +370,13 @@ public class PlayerMove : MonoBehaviour
             rb.velocity = new Vector2(rb.velocity.x, 0);
 
         if (ground_front || ground_back)
+        {
             isGrounded = true;
+            if (isAttack)
+            {
+                isGrounded = false;
+            }
+        }
         else
             isGrounded = false;
 
@@ -456,6 +397,10 @@ public class PlayerMove : MonoBehaviour
     void GroundChk()
     {
         isGrounded = Physics2D.Raycast(chkPos.position, Vector2.down, distance, groundMask);
+        if (isAttack)
+        {
+            isGrounded = false;
+        }
         isJumping = !isGrounded;
     }
     void WallChk()
@@ -493,68 +438,84 @@ public class PlayerMove : MonoBehaviour
     IEnumerator Attack()
     {
         Attacktime = 0;
-        isAttack = true;
-
-        while (Attacktime <= 4f)
-        {
-
-            if (AttackNum == 0)
-            {
-                //if (AttackPrefab == null)
-                //{
-                //    Instantiate(AttackPrefab, AttackParent.position, Quaternion.identity);
-                //    AttackParent.transform.parent = AttackPrefab.transform;
-                //    //AttackPrefab.transform.SetParent(AttackParent.transform);
-                //}
-                //if (AttackPrefab != null)
-                state = State_P.Attack1;
-                AttackPrefab.SetActive(true);
-                yield return new WaitForSeconds(0.25f);
-                AttackPrefab.SetActive(false);
-            }
-            else
-            {
-                if (AttackNum == 1)
-                {
-                    state = State_P.Attack2;
-                    AttackPrefab.SetActive(true);
-                    yield return new WaitForSeconds(0.25f);
-                    AttackPrefab.SetActive(false);////////////////////////////////////////////
-
-                }
-                else if (AttackNum == 2)
-                {
-                    state = State_P.Attack3;
-                    AttackPrefab.SetActive(true);
-                    yield return new WaitForSeconds(0.45f);
-                    AttackPrefab.SetActive(false);
-                }
-                else if (AttackNum == 3)
-                {
-                    state = State_P.Attack4;
-                    yield return new WaitForSeconds(0.3f);
-                    AttackPrefab.SetActive(true);
-                    yield return new WaitForSeconds(0.25f);
-                    AttackPrefab.SetActive(false);
-                }
-                else if (AttackNum == 4)
-                {
-                    state = State_P.Attack_F;
-                    yield return new WaitForSeconds(0.25f);
-                    AttackPrefab.SetActive(true);
-                    yield return new WaitForSeconds(0.25f);
-                    AttackPrefab.SetActive(false);
-                }
-            }
-       
-        yield return null;
-        }
-        isAttack = false;
-
         
-
+            while (Attacktime <= 1f)
+            {
+                if (AttackNum == 0)
+                {
+                    if (!isAttack)
+                    {
+                        isAttack = true;
+                        state = State_P.Attack1;
+                        AttackPrefab.SetActive(true);
+                        yield return new WaitForSeconds(0.25f);
+                        AttackPrefab.SetActive(false);
+                    }
+                }
+                else
+                {
+                    if (Input.GetKeyDown(KeyCode.LeftControl))
+                    {
+                        if (AttackNum == 1)
+                        {
+                            if (!isAttack)
+                            {
+                                isAttack = true;
+                                state = State_P.Attack2;
+                                AttackPrefab.SetActive(true);
+                                yield return new WaitForSeconds(0.25f);
+                                AttackPrefab.SetActive(false);////////////////////////////////////////////
+                            }
+                            state = State_P.Idle;
+                        }
+                        else if (AttackNum == 2)
+                        {
+                            if (!isAttack)
+                            {
+                                isAttack = true;
+                                state = State_P.Attack3;
+                                AttackPrefab.SetActive(true);
+                                yield return new WaitForSeconds(0.45f);
+                                AttackPrefab.SetActive(false);
+                            }
+                            state = State_P.Idle;
+                        }
+                        else if (AttackNum == 3)
+                        {
+                            if (!isAttack)
+                            {
+                                isAttack = true;
+                                state = State_P.Attack4;
+                                yield return new WaitForSeconds(0.3f);
+                                AttackPrefab.SetActive(true);
+                                yield return new WaitForSeconds(0.25f);
+                                AttackPrefab.SetActive(false);
+                            }
+                            state = State_P.Idle;
+                        }
+                        else if (AttackNum == 4)
+                        {
+                            if (!isAttack)
+                            {
+                                isAttack = true;
+                                state = State_P.Attack_F;
+                                yield return new WaitForSeconds(0.25f);
+                                AttackPrefab.SetActive(true);
+                                yield return new WaitForSeconds(0.25f);
+                                AttackPrefab.SetActive(false);
+                                AttackNum = 0;
+                            }
+                            state = State_P.Idle;
+                        }
+                    }
+                }
+                yield return null;
+            }
+        
+        isAttack = false;
         AttackRoutine = null;
-
+        Attacktime = 0;
+        ++AttackNum;
     }
 
     void Jump()
