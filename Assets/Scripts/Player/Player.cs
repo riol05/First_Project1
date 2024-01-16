@@ -14,7 +14,7 @@ public class Player : MonoBehaviour
 
     public int Damage;
     private int curHp;
-    public int maxHp;
+    private int maxHp;
     protected float HpAmount;
 
     [HideInInspector]
@@ -22,7 +22,8 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
-        
+        Damage = 1;
+        maxHp = 6;
         curHp = maxHp;
         HpAmount = curHp / maxHp;
     }
@@ -69,9 +70,13 @@ public class Player : MonoBehaviour
     }
     public void attack(GameObject monster)
     {
-        state = State_P.Attack1;
+        if(GameManager.Instance.Cmove.AttackNum <= 3)
         GameManager.Instance.monster.GetDamage(Damage);
+        
+        else if(GameManager.Instance.Cmove.AttackNum >= 4)
+            GameManager.Instance.monster.GetDamage(Damage * 2);
     }
+
 
     public int Heal(int HealPoint)
     {

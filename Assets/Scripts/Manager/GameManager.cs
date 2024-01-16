@@ -53,6 +53,8 @@ public class GameManager : MonoBehaviour
         if (lose)
         {
             endText.gameObject.SetActive(true);
+            StartCoroutine(IfLose());
+            StopCoroutine(IfLose());
         }
     }
     public bool chkGoal()
@@ -64,5 +66,9 @@ public class GameManager : MonoBehaviour
         }
         return win;
     }
-
+    IEnumerator IfLose()
+    {
+        new WaitForSeconds(3f);
+        yield return null;
+    }
 }

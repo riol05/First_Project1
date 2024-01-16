@@ -6,29 +6,30 @@ using UnityEngine.PlayerLoop;
 
 public class MovingBrick : MonoBehaviour
 {
-    Rigidbody2D rb;
+    private Rigidbody2D rb;
+    public Transform desPos;
+    public Transform startPos;
+    public Transform endPos;
     public float movingSpeed;
-    public float movingRange;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        transform.position = startPos.position;
+        desPos = endPos;
     }
-
-    private void Start()
-    {
-        StartCoroutine("movingBrick");
-        
-    }
-
-    IEnumerator movingBrick()
-    {
-        while (true)
+    private void FixedUpdate()
+    {   // transform.position
+        rb.position = Vector2.MoveTowards(transform.position,desPos.position, Time.deltaTime * movingSpeed);
+        if (Vector2.Distance(desPos.position, transform.position) <= 0.6f)
         {
-            rb.velocity = new Vector2(movingRange * movingSpeed, 0);
-            rb.velocity = new Vector2(-1 * movingRange * movingSpeed, 0);
-            yield return new WaitForSeconds(2f);
-        }
+            if (desPos == endPos)
+                desPos = startPos;
 
+            else if (desPos == startPos)
+                desPos = endPos;
+
+        }
     }
+
 }
