@@ -4,10 +4,10 @@ using UnityEngine;
 
 enum State_B
 {
-    Idle,
-    Chase,
-    Hit,
-    Death
+    Idle,//0
+    Chase,//1
+    Hit,//2
+    Death//3
 }
 public class Bat : Monster
 {
@@ -15,61 +15,168 @@ public class Bat : Monster
     Animator animator;
     Transform target;
     float detectDistance;
-    Rigidbody rb;
+    Coroutine hitRoutine = null;
+    Coroutine moveRoutine = null;
+    
+
     private void Awake()
     {
+        
         Damage = 1;
         state = State_B.Idle;
         maxHp = 3;
+        curHp = maxHp;
         animator = GetComponent<Animator>();
         target = GameManager.Instance.player.transform;
         detectDistance = 5f;
         speed = 1;
-        sr = GetComponent<SpriteRenderer>();
-        rb = GetComponent<Rigidbody>();
+        sr = GetComponentInChildren<SpriteRenderer>();
+        rb = GetComponent<Rigidbody2D>();
     }
     public override void Chase()
     {
         if (target.position.x < transform.position.x)
         {
             sr.flipX = true;
-            rb.velocity = Vector2.right * speed;
+            Vector2 dir =
+            ((Vector2)(target.transform.position - transform.position).
+            normalized * speed);
+            rb.velocity = dir;
+            
         }
         else if (target.position.x > transform.position.x)
         {
             sr.flipX = false;
-            rb.velocity = Vector2.right * speed;
+            Vector2 dir =
+            ((Vector2)(target.transform.position - transform.position).
+            normalized * speed);
+            rb.velocity = dir;
         }
         if (Vector2.Distance(transform.position, target.position) > detectDistance)
         {
+            if (sr.flipX == true)
+            {
+                sr.flipX = false;
+            }
             state = State_B.Idle;
         }
     }
 
-    public override void Attack()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public override void Update()
+    private void Update()
     {
         
         switch(state)
         {
             case State_B.Idle:
+
+                if(moveRoutine==null)
+                moveRoutine = StartCoroutine(move());
+
                 if (Vector2.Distance(transform.position, target.transform.position) < detectDistance)
                 {
                     state = State_B.Chase;
                 }
+
                 break;
             case State_B.Chase:
+                
                 Chase();
                 break;
             case State_B.Hit:
+
                 break;
             case State_B.Death:
+
                 break;
         }
         animator.SetInteger("State", (int)state);
+        if (isHit)
+        {
+            state = State_B.Hit;
+        }
+        else
+        {
+            if (hitRoutine != null)
+            {
+                hitRoutine = null;
+            }
+        }
+        
+        if(state != State_B.Idle)
+        {
+            if (moveRoutine != null)
+            moveRoutine = null;
+        }
+    }
+
+    public override void Hit(int Damage)
+    {
+        curHp -= Damage;
+        isHit = true;
+        StartCoroutine(BatHit());
+    }
+    IEnumerator BatHit()
+    {
+        yield return null;
+        state = State_B.Hit;
+        transform.position =Vector2.zero;
+        if (target.position.x < transform.position.x)
+            rb.velocity = new Vector2(10f, rb.velocity.y);
+        else
+            rb.velocity = new Vector2(-10f, rb.velocity.y);
+        yield return new WaitForSeconds(1f);
+        isHit = false;
+        state = State_B.Idle;
+    }
+    IEnumerator BatDead()
+    {
+        if (curHp <= 0)
+        {
+            state = State_B.Death;
+            yield return new WaitForSeconds(2f);
+            gameObject.SetActive(false);
+        }
+        yield return null;
+    }
+
+    int moveRand;
+    IEnumerator move()
+    {
+        while (!isHit)
+        {
+            if (Vector2.Distance(rootPosition.transform.position, transform.position) > 6)
+            {
+                Vector2 dir =
+                ((Vector2)(rootPosition.transform.position - transform.position).normalized * speed * 3);
+                yield return new WaitForSeconds(3f);
+            }
+            moveRand = Random.Range(-1, 1);
+            rb.velocity = Vector2.zero;
+            if (moveRand == 1)
+            {
+            if(sr.flipX == true)
+                {
+                sr.flipX = false;
+                }
+            rb.velocity = new Vector2(speed, rb.velocity.y);
+                yield return new WaitForSeconds(2f);
+            }
+            else if (moveRand == 0)
+            {
+                yield return new WaitForSeconds(2f);
+            }
+            else if (moveRand == -1)
+            {
+                sr.flipX = true;
+                rb.velocity = new Vector2(-speed, rb.velocity.y);
+                yield return new WaitForSeconds(2f);
+            }
+            yield return null;
+        }
+        
+    }
+    public override void Deathchk()
+    {
+        StartCoroutine(BatDead());
     }
 }

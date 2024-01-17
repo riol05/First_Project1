@@ -11,6 +11,7 @@ public class MovingBrick : MonoBehaviour
     public Transform startPos;
     public Transform endPos;
     public float movingSpeed;
+    bool moving = false;
 
     private void Awake()
     {
@@ -18,18 +19,40 @@ public class MovingBrick : MonoBehaviour
         transform.position = startPos.position;
         desPos = endPos;
     }
-    private void FixedUpdate()
-    {   // transform.position
-        rb.position = Vector2.MoveTowards(transform.position,desPos.position, Time.deltaTime * movingSpeed);
-        if (Vector2.Distance(desPos.position, transform.position) <= 0.6f)
+    IEnumerator Moving()
+    {
+        while (moving)
         {
-            if (desPos == endPos)
-                desPos = startPos;
+            rb.position = Vector2.MoveTowards(transform.position, desPos.position, Time.deltaTime * movingSpeed);
+            if (Vector2.Distance(desPos.position, transform.position) <= 0.6f)
+            {
+                if (desPos == endPos)
+                    desPos = startPos;
 
-            else if (desPos == startPos)
-                desPos = endPos;
-
+                else if (desPos == startPos)
+                    desPos = endPos;
+            }
+            yield return null;
         }
     }
 
+    private void OnCollisionEnter2D(Collision2D other)
+    {
+        if(other.collider.GetComponent<Player>())
+        {
+            moving = true;
+            StartCoroutine(Moving());
+            //other.collider.GetComponent<Player>().GetComponent<Rigidbody2D>().velocity = new Vector2; 
+        }
+    }
+
+    
+    private void OnCollisionExit2D(Collision2D other)
+    {
+        if (other.collider.GetComponent<Player>())
+        {
+            moving = false;
+            StopCoroutine(Moving());
+        }
+    }
 }

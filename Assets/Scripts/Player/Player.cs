@@ -8,12 +8,12 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    State_P state ;
+    
     Rigidbody2D rb;
     public ParticleSystem deathParticle;
 
     public int Damage;
-    private int curHp;
+    public int curHp;
     private int maxHp;
     protected float HpAmount;
 
@@ -33,13 +33,6 @@ public class Player : MonoBehaviour
         Death();
     }
 
-    public int GetDamage(int damage)
-    {
-        state = State_P.Hit;
-        curHp -= damage;
-        rb.AddForce(new Vector2(-1, 0.3f), ForceMode2D.Impulse);
-        return curHp;
-    }
 
     public int Equipment(int Equip)
     {
@@ -68,14 +61,17 @@ public class Player : MonoBehaviour
             GameManager.Instance.GameOver();
         }
     }
-    public void attack(GameObject monster)
-    {
-        if(GameManager.Instance.Cmove.AttackNum <= 3)
-        GameManager.Instance.monster.GetDamage(Damage);
-        
-        else if(GameManager.Instance.Cmove.AttackNum >= 4)
-            GameManager.Instance.monster.GetDamage(Damage * 2);
-    }
+    //public void attack(GameObject monster)
+    //{
+    //    if (monster == GetComponent<Monster>())
+    //    {
+    //        if (GameManager.Instance.Cmove.AttackNum <= 3)
+    //            GameManager.Instance.monster.GetDamage(Damage);
+
+    //        else if (GameManager.Instance.Cmove.AttackNum >= 4)
+    //            GameManager.Instance.monster.GetDamage(Damage * 2);
+    //    }
+    //}
 
 
     public int Heal(int HealPoint)

@@ -229,7 +229,7 @@ public class PlayerMove : MonoBehaviour
 
             case State_P.Hit:           //5 이건 힛 스테이트
 
-                isHitted = false;
+                //isHitted = false;
 
                 rb.velocity = Vector2.zero;
 
@@ -376,15 +376,16 @@ public class PlayerMove : MonoBehaviour
         {
             if (isRight == 1)
             {
-                rb.AddForce(new Vector2(2, 0), ForceMode2D.Impulse);
+                rb.velocity = new Vector2(-7, 1);
+                //rb.AddForce(new Vector2(2, 0), ForceMode2D.Impulse);
             }
             else if (isRight == -1)
             {
-                rb.AddForce(new Vector2(-2, 0), ForceMode2D.Impulse);
+                rb.velocity = new Vector2(7, 1);
+                //rb.AddForce(new Vector2(-2, 0), ForceMode2D.Impulse);
             }
         }
     }
-
 
     void GroundChk()
     {
@@ -525,20 +526,27 @@ public class PlayerMove : MonoBehaviour
                 rb.velocity = new Vector2(0, 0.01f);
             }
         }
-    }
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if(collision.GetComponent<Monster>())
+    
+    
+        if(other.collider.GetComponent<Monster>())
         {
             state = State_P.Hit;
-            if (transform.position.x > GameManager.Instance.monster.transform.position.x)
+            if (transform.position.x > other.transform.position.x)
             {
-                rb.velocity = new Vector2(10f, 0);
+                rb.velocity = new Vector2(10f, rb.velocity.y);
             }
             else
             {
-                rb.velocity = new Vector2(-10f, 0);
+                rb.velocity = new Vector2(-10f, rb.velocity.y);
             }
         }
     }
+        public int GetDamage(int damage)
+        {
+        state = State_P.Hit;
+        GameManager.Instance.player.curHp -= damage;
+        rb.AddForce(new Vector2(-20, 0.3f), ForceMode2D.Impulse);
+        return GameManager.Instance.player.curHp;
+        }
+
 }

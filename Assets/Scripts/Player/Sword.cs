@@ -12,9 +12,13 @@ public class Sword : MonoBehaviour
     }
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.gameObject.tag == "Monster")
+        if (other.GetComponent<Monster>())
         {
-            GameManager.Instance.player.attack(other.gameObject);
+            if (GetComponent<PlayerMove>().AttackNum <= 3)
+                other.GetComponent<Monster>().GetDamage(GetComponent<Player>().Damage);
+
+            else if (GetComponent<PlayerMove>().AttackNum > 3)
+                other.GetComponent<Monster>().GetDamage(GetComponent<Player>().Damage+1);
         }
     }
 }
