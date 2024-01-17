@@ -230,6 +230,9 @@ public class PlayerMove : MonoBehaviour
             case State_P.Hit:           //5 이건 힛 스테이트
 
                 isHitted = false;
+
+                rb.velocity = Vector2.zero;
+
                 state = State_P.Idle;
                 break;
 
@@ -318,6 +321,10 @@ public class PlayerMove : MonoBehaviour
         {
             Attacktime = 0;
             AttackNum = 0;
+        }
+        if(AttackNum <= 4)
+        {
+            GameManager.Instance.player.Damage = 2;
         }
     }
 
@@ -418,7 +425,7 @@ public class PlayerMove : MonoBehaviour
 
     IEnumerator Attack()
     {
-        while (Attacktime <= 1.2f)
+        while (Attacktime <= 1.1f)
         {
                 if (AttackNum == 0)
                 {
@@ -516,6 +523,21 @@ public class PlayerMove : MonoBehaviour
             if (other.collider.tag == "Plat")
             {
                 rb.velocity = new Vector2(0, 0.01f);
+            }
+        }
+    }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if(collision.GetComponent<Monster>())
+        {
+            state = State_P.Hit;
+            if (transform.position.x > GameManager.Instance.monster.transform.position.x)
+            {
+                rb.velocity = new Vector2(10f, 0);
+            }
+            else
+            {
+                rb.velocity = new Vector2(-10f, 0);
             }
         }
     }
