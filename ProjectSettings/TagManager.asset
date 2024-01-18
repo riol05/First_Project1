@@ -17,10 +17,10 @@ TagManager:
   - Player
   - Wall
   - Plat
-  - 
-  - 
-  - 
-  - 
+  - Monster
+  - Bottom
+  - Deadzone
+  - shield
   - 
   - 
   - 

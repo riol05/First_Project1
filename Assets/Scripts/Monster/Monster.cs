@@ -14,10 +14,7 @@ public abstract class Monster : MonoBehaviour
     public Transform rootPosition;
     public float checkRadius; // 원으로 범위를 지정, 벗어나면 제자리로
 
-    //[HideInInspector]
-    public SpriteRenderer sr;
-    //[HideInInspector]
-    public Rigidbody2D rb;
+   
     public bool isHit = false;
 
 
@@ -42,7 +39,6 @@ public abstract class Monster : MonoBehaviour
     {
         if (other.collider.tag == "Player")
         {
-            //GameManager.Instance.Cmove.GetDamage(Damage); // 안되면 다시 이거로 바꾸자
             other.collider.GetComponent<PlayerMove>().GetDamage(Damage);
         }
     }

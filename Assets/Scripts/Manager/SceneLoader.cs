@@ -23,13 +23,6 @@ public class SceneLoader : MonoBehaviour
 
     public void StageLoader()
     {
-        if(GameManager.Instance.stageNum == 5)
-        {
-            isClear = true;
-        }
-        else
-        {
             SceneManager.LoadScene(GameManager.Instance.stageNum, LoadSceneMode.Single);
-        }
     }
 }

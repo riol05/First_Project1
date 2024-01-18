@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GoalObject : MonoBehaviour
 {
@@ -10,7 +11,7 @@ public class GoalObject : MonoBehaviour
         if(collision.tag == "Player")
         {
             ++GameManager.Instance.stageNum;
-            //GameManager.Instance.sceneLoader.
+            GameManager.Instance.sceneLoader.StageLoader();
         }
     }
 }

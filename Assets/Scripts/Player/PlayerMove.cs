@@ -77,6 +77,8 @@ public class PlayerMove : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         cc = GetComponent<CapsuleCollider2D>();
         ghost = GetComponent<Ghost>();
+        
+        AttackPrefab.SetActive(false);
     }
 
 
@@ -230,7 +232,6 @@ public class PlayerMove : MonoBehaviour
 
             case State_P.Hit:           //5 이건 힛 스테이트
 
-                state = State_P.Idle;
                 break;
 
             case State_P.Attack2:         //6
@@ -318,10 +319,6 @@ public class PlayerMove : MonoBehaviour
         {
             Attacktime = 0;
             AttackNum = 0;
-        }
-        if(AttackNum <= 4)
-        {
-            GameManager.Instance.player.Damage = 2;
         }
     }
 
@@ -529,30 +526,32 @@ public class PlayerMove : MonoBehaviour
     {
         state = State_P.Hit;
         isHitted = true;
-        rb.velocity = Vector2.zero;
         if (isRight == 1)
         {
+            rb.velocity = new Vector2(-10, rb.velocity.y);
+            yield return new WaitForSeconds(1f);
             yield return null;
-            rb.velocity = new Vector2(-7, rb.velocity.y + 1);
-            yield return new WaitForSeconds(.2f);
         }
         else if (isRight == -1)
         {
-            yield return null;
-            rb.velocity = new Vector2(7, rb.velocity.y + 1);
-            yield return new WaitForSeconds(.2f);
+            rb.velocity = new Vector2(10, rb.velocity.y);
+            yield return new WaitForSeconds(1f);
             yield return null;
         }
         else
         {
-            rb.velocity = new Vector2(7, rb.velocity.y + 1);
+            rb.velocity = new Vector2(10, rb.velocity.y);
+            yield return new WaitForSeconds(1f);
+            yield return null;
         }
         isHitted = false;
+        
         hitRoutine = null;
 
     }
         public int GetDamage(int damage)
         {
+        print("123");
         GameManager.Instance.player.curHp -= damage;
         hitRoutine = StartCoroutine(Hit());
         //rb.velocity = Vector2.zero;

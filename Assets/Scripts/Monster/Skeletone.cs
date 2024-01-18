@@ -19,6 +19,12 @@ public class Skeletone : Monster
     float detectDistance;
     Coroutine hitRoutine = null;
     Coroutine moveRoutine = null;
+    
+    //[HideInInspector]
+    public SpriteRenderer sr;
+    
+    //[HideInInspector]
+    public Rigidbody2D rb;
     private void Awake()
     {
         Damage = 1;
@@ -26,12 +32,12 @@ public class Skeletone : Monster
         maxHp = 3;
         curHp = maxHp;
         animator = GetComponent<Animator>();
-        target = GameManager.Instance.player.transform;
+        target = GameObject.FindGameObjectWithTag("Player").transform;
         detectDistance = 4f;
-        rb = GetComponent<Rigidbody2D>();
         speed = 1f;
         sr = GetComponentInChildren<SpriteRenderer>();
-        rootPosition = GetComponentInParent<Transform>();
+        rb = GetComponent<Rigidbody2D>();
+        rootPosition = transform.parent;
     }
     public override void Chase()
     {
@@ -59,7 +65,6 @@ public class Skeletone : Monster
     private void Update()
     {
 
-        
         switch (state)
         {
             case State_s.Idle:
@@ -76,10 +81,16 @@ public class Skeletone : Monster
                 
                 break;
             case State_s.Death:
+                
                 break;
         }
         animator.SetInteger("State", (int)state);
 
+        if (state != State_s.Idle || state != State_s.Move)
+        {
+            if (moveRoutine != null)
+                moveRoutine = null;
+        }
         if (isHit)
         {
             moveRoutine = null;
@@ -91,19 +102,18 @@ public class Skeletone : Monster
             {
                 hitRoutine = null;
             }
-
-            if (Vector2.Distance(transform.position, target.transform.position) < detectDistance)
+        }
+        if (state == State_s.Move)
+        {
+            if (Vector2.Distance(transform.position, rootPosition.position) >= 2.5f)
             {
-                state = State_s.Chase;
-            }
-            else
-            {
-                state = State_s.Idle;
+                Vector2 dir =
+             ((Vector2)(rootPosition.position - transform.position).
+             normalized * speed*3);
+                rb.velocity = dir;
             }
         }
 
-        
-        
     }
 
     public override void Hit(int Damage)
@@ -121,7 +131,7 @@ public class Skeletone : Monster
             rb.velocity = new Vector2(2f, rb.velocity.y);
         else
             rb.velocity = new Vector2(2f, rb.velocity.y);
-        yield return new WaitForSeconds(0.7f);
+        yield return new WaitForSeconds(1f);
         isHit = false;
         
         if (Vector2.Distance(transform.position, target.transform.position) < detectDistance)
@@ -132,6 +142,7 @@ public class Skeletone : Monster
         {
             state = State_s.Idle;
         }
+
     }
     IEnumerator MonsDead()
     {
@@ -140,10 +151,11 @@ public class Skeletone : Monster
             if (curHp <= 0)
             {
                 isHit = true;
-                rb.velocity = Vector2.zero;
                 state = State_s.Death;
-                yield return new WaitForSeconds(2f);
-                gameObject.SetActive(false);
+                Destroy(rb);
+                yield return new WaitForSeconds(1f);
+                gameObject.SetActive(false);                
+                gameObject.AddComponent<Rigidbody>();
             }
             yield return null;
         }
@@ -153,12 +165,7 @@ public class Skeletone : Monster
     {
         while (!isHit)
         {
-            if (Vector2.Distance(rootPosition.transform.position, transform.position) > 6)
-            {
-                Vector2 dir =
-                ((Vector2)(rootPosition.transform.position - transform.position).normalized * speed * 3);
-                yield return new WaitForSeconds(3f);
-            }
+
             moveRand = Random.Range(-1, 2);
             rb.velocity = Vector2.zero;
             if (moveRand == 1)

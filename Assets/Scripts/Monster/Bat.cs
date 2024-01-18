@@ -17,7 +17,10 @@ public class Bat : Monster
     float detectDistance;
     Coroutine hitRoutine = null;
     Coroutine moveRoutine = null;
-    
+    //[HideInInspector]
+    public SpriteRenderer sr;
+    //[HideInInspector]
+    public Rigidbody2D rb;
 
     private void Awake()
     {
@@ -27,11 +30,12 @@ public class Bat : Monster
         maxHp = 3;
         curHp = maxHp;
         animator = GetComponent<Animator>();
-        target = GameManager.Instance.player.transform;
+        target = GameObject.FindGameObjectWithTag("Player").transform;
         detectDistance = 5f;
         speed = 1;
         sr = GetComponentInChildren<SpriteRenderer>();
         rb = GetComponent<Rigidbody2D>();
+        rootPosition = transform.parent;
     }
     public override void Chase()
     {
@@ -89,6 +93,7 @@ public class Bat : Monster
                 break;
         }
         animator.SetInteger("State", (int)state);
+
         if (isHit)
         {
             state = State_B.Hit;
@@ -105,6 +110,16 @@ public class Bat : Monster
         {
             if (moveRoutine != null)
             moveRoutine = null;
+        }
+        if (state == State_B.Idle)
+        {
+            if (Vector2.Distance(transform.position, rootPosition.position) >= 5f)
+            {
+                Vector2 dir =
+             ((Vector2)(rootPosition.position - transform.position).
+             normalized * speed * 3);
+                rb.velocity = dir;
+            }
         }
     }
 
@@ -124,8 +139,16 @@ public class Bat : Monster
         else
             rb.velocity = new Vector2(-1f, 0);
         isHit = false;
-        yield return new WaitForSeconds(.7f);
-        state = State_B.Idle;
+        yield return new WaitForSeconds(1f);
+        
+        if (Vector2.Distance(transform.position, target.transform.position) < detectDistance)
+        {
+            state = State_B.Chase;
+        }
+        else
+        {
+            state = State_B.Idle;
+        }
     }
     IEnumerator BatDead()
     {
@@ -134,8 +157,10 @@ public class Bat : Monster
             isHit = true;
             rb.velocity = Vector2.zero;
             state = State_B.Death;
-            yield return new WaitForSeconds(1.5f);
+            Destroy(rb);
+            yield return new WaitForSeconds(1.0f);
             gameObject.SetActive(false);
+            gameObject.AddComponent<Rigidbody>();
         }
         yield return null;
     }
@@ -151,7 +176,7 @@ public class Bat : Monster
                 ((Vector2)(rootPosition.transform.position - transform.position).normalized * speed * 3);
                 yield return new WaitForSeconds(3f);
             }
-            moveRand = Random.Range(-1, 1);
+            moveRand = Random.Range(-1, 2);
             rb.velocity = Vector2.zero;
             if (moveRand == 1)
             {

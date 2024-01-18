@@ -8,6 +8,4 @@ public class ScoreText : MonoBehaviour
     {
         GetComponent<Text>().text = "Stage" + (GameManager.Instance.stageNum + 1);
     }
-
-    
 }
