@@ -83,7 +83,6 @@ public class Bat : Monster
                 Chase();
                 break;
             case State_B.Hit:
-
                 break;
             case State_B.Death:
 
@@ -119,21 +118,23 @@ public class Bat : Monster
     {
         yield return null;
         state = State_B.Hit;
-        transform.position =Vector2.zero;
+        rb.velocity =Vector2.zero;
         if (target.position.x < transform.position.x)
-            rb.velocity = new Vector2(10f, rb.velocity.y);
+            rb.velocity = new Vector2(1f, 0);
         else
-            rb.velocity = new Vector2(-10f, rb.velocity.y);
-        yield return new WaitForSeconds(1f);
+            rb.velocity = new Vector2(-1f, 0);
         isHit = false;
+        yield return new WaitForSeconds(.7f);
         state = State_B.Idle;
     }
     IEnumerator BatDead()
     {
         if (curHp <= 0)
         {
+            isHit = true;
+            rb.velocity = Vector2.zero;
             state = State_B.Death;
-            yield return new WaitForSeconds(2f);
+            yield return new WaitForSeconds(1.5f);
             gameObject.SetActive(false);
         }
         yield return null;
@@ -179,4 +180,6 @@ public class Bat : Monster
     {
         StartCoroutine(BatDead());
     }
+
+
 }

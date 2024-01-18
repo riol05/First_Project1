@@ -91,16 +91,19 @@ public class Skeletone : Monster
             {
                 hitRoutine = null;
             }
+
+            if (Vector2.Distance(transform.position, target.transform.position) < detectDistance)
+            {
+                state = State_s.Chase;
+            }
+            else
+            {
+                state = State_s.Idle;
+            }
         }
 
-        if (Vector2.Distance(transform.position, target.transform.position) < detectDistance)
-        {
-            state = State_s.Chase;
-        }
-        else
-        {
-            state = State_s.Idle;
-        }
+        
+        
     }
 
     public override void Hit(int Damage)
@@ -113,14 +116,22 @@ public class Skeletone : Monster
     {
         yield return null;
         state = State_s.Hit;
-        transform.position = Vector2.zero;
+        rb.velocity = Vector2.zero;
         if (target.position.x < transform.position.x)
-            rb.velocity = new Vector2(3f, rb.velocity.y);
+            rb.velocity = new Vector2(2f, rb.velocity.y);
         else
-            rb.velocity = new Vector2(-3f, rb.velocity.y);
-        yield return new WaitForSeconds(1f);
+            rb.velocity = new Vector2(2f, rb.velocity.y);
+        yield return new WaitForSeconds(0.7f);
         isHit = false;
-        state = State_s.Idle;
+        
+        if (Vector2.Distance(transform.position, target.transform.position) < detectDistance)
+        {
+            state = State_s.Chase;
+        }
+        else
+        {
+            state = State_s.Idle;
+        }
     }
     IEnumerator MonsDead()
     {
@@ -128,6 +139,8 @@ public class Skeletone : Monster
         {
             if (curHp <= 0)
             {
+                isHit = true;
+                rb.velocity = Vector2.zero;
                 state = State_s.Death;
                 yield return new WaitForSeconds(2f);
                 gameObject.SetActive(false);
@@ -183,4 +196,6 @@ public class Skeletone : Monster
     {
         StartCoroutine(MonsDead());
     }
+
+
 }

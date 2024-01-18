@@ -45,7 +45,7 @@ public class GameManager : MonoBehaviour
         }
         lose = player.death;
         GameOver();
-        sceneLoader.StageLoader();
+        //sceneLoader.StageLoader();
     }
 
     public void GameOver()

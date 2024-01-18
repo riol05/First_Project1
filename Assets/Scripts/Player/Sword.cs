@@ -14,11 +14,11 @@ public class Sword : MonoBehaviour
     {
         if (other.GetComponent<Monster>())
         {
-            if (GetComponent<PlayerMove>().AttackNum <= 3)
-                other.GetComponent<Monster>().GetDamage(GetComponent<Player>().Damage);
+            if (GameManager.Instance.Cmove.AttackNum <= 3)
+                other.GetComponent<Monster>().GetDamage(GameManager.Instance.player.Damage);
 
-            else if (GetComponent<PlayerMove>().AttackNum > 3)
-                other.GetComponent<Monster>().GetDamage(GetComponent<Player>().Damage+1);
+            if (GameManager.Instance.Cmove.AttackNum > 3)
+                other.GetComponent<Monster>().GetDamage(GameManager.Instance.player.Damage + 1);
         }
     }
 }

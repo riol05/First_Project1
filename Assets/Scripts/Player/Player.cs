@@ -33,7 +33,6 @@ public class Player : MonoBehaviour
         Death();
     }
 
-
     public int Equipment(int Equip)
     {
         Damage += Equip;

@@ -67,6 +67,7 @@ public class PlayerMove : MonoBehaviour
     bool isJumping = false;
     bool isHitted = false;
     bool isGrounded = true;
+    Coroutine hitRoutine = null;
 
     private void Awake()
     {
@@ -229,10 +230,6 @@ public class PlayerMove : MonoBehaviour
 
             case State_P.Hit:           //5 이건 힛 스테이트
 
-                //isHitted = false;
-
-                rb.velocity = Vector2.zero;
-
                 state = State_P.Idle;
                 break;
 
@@ -371,20 +368,7 @@ public class PlayerMove : MonoBehaviour
         else
             isGrounded = false;
         
-
-        if (isHitted) // 
-        {
-            if (isRight == 1)
-            {
-                rb.velocity = new Vector2(-7, 1);
-                //rb.AddForce(new Vector2(2, 0), ForceMode2D.Impulse);
-            }
-            else if (isRight == -1)
-            {
-                rb.velocity = new Vector2(7, 1);
-                //rb.AddForce(new Vector2(-2, 0), ForceMode2D.Impulse);
-            }
-        }
+        isHitted =!isGrounded;
     }
 
     void GroundChk()
@@ -541,12 +525,53 @@ public class PlayerMove : MonoBehaviour
             }
         }
     }
+    IEnumerator Hit()
+    {
+        state = State_P.Hit;
+        isHitted = true;
+        rb.velocity = Vector2.zero;
+        if (isRight == 1)
+        {
+            yield return null;
+            rb.velocity = new Vector2(-7, rb.velocity.y + 1);
+            yield return new WaitForSeconds(.2f);
+        }
+        else if (isRight == -1)
+        {
+            yield return null;
+            rb.velocity = new Vector2(7, rb.velocity.y + 1);
+            yield return new WaitForSeconds(.2f);
+            yield return null;
+        }
+        else
+        {
+            rb.velocity = new Vector2(7, rb.velocity.y + 1);
+        }
+        isHitted = false;
+        hitRoutine = null;
+
+    }
         public int GetDamage(int damage)
         {
-        state = State_P.Hit;
         GameManager.Instance.player.curHp -= damage;
-        rb.AddForce(new Vector2(-20, 0.3f), ForceMode2D.Impulse);
+        hitRoutine = StartCoroutine(Hit());
+        //rb.velocity = Vector2.zero;
+        //state = State_P.Hit;
+        //isHitted = true;
+        //GameManager.Instance.player.curHp -= damage;
+        ////rb.AddForce(new Vector2(-20, 0.3f), ForceMode2D.Impulse);
+        //if (isRight == 1)
+        //{
+        //    rb.velocity = Vector2.zero;
+        //    rb.velocity = new Vector2(-7, rb.velocity.y + 1);
+        //    //rb.AddForce(new Vector2(2, 0), ForceMode2D.Impulse);
+        //}
+        //else if (isRight == -1)
+        //{
+        //    rb.velocity = new Vector2(7, rb.velocity.y + 1);
+        //    //rb.AddForce(new Vector2(-2, 0), ForceMode2D.Impulse);
+        //}
         return GameManager.Instance.player.curHp;
         }
 
-}
+    }

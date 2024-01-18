@@ -21,14 +21,16 @@ public abstract class Monster : MonoBehaviour
     public bool isHit = false;
 
 
-    public void GetDamage(int Damage)
+    public int GetDamage(int Damage)
     {
         Hit(Damage);
         if (curHp <= 0)
         {
             Deathchk();
         }
+        return curHp;
     }
+
     public abstract void Chase();
 
     
