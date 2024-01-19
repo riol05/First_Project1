@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -14,23 +15,26 @@ public class GameManager : MonoBehaviour
     [HideInInspector]
     public Player player;
     public Transform endText;
+    public Transform EndButton;
 
     public Transform playerPrefab;
     public List<GameObject> monsters;
-    public int stageNum = 0;
-    int i;
-    public SpriteRenderer[] hearts;
+    
+    
+
     public bool win;
     public bool lose;
+    public bool thisgoal = false;
     public static GameManager Instance { get; private set; }
 
     private void Awake()
     {
+        
         playerPrefab = GameObject.FindGameObjectWithTag("Player").transform;
         player = playerPrefab.GetComponent<Player>();
         Cmove = playerPrefab.GetComponent<PlayerMove>();
         monster = playerPrefab.GetComponent<Monster>();
-        //sceneLoader = new SceneLoader();
+        sceneLoader = new SceneLoader();
         if( Instance != null)
         {
             DestroyImmediate(Instance);
@@ -55,11 +59,7 @@ public class GameManager : MonoBehaviour
         lose = player.death;
         GameOver();
         //sceneLoader.StageLoader(); // goalObject 클래스 확인
-        if(stageNum ==5)
-        {
-            win = true;
-        }
-        hearts[i] = hearts[player.curHp];
+    
     }
 
     public void GameOver()
@@ -67,8 +67,8 @@ public class GameManager : MonoBehaviour
         if (lose)
         {
             endText.gameObject.SetActive(true);
-            StartCoroutine(IfLose());
-            StopCoroutine(IfLose());
+            EndButton.gameObject.SetActive(true);
+            sceneLoader.StartScene();
         }
     }
 //    public bool chkGoal()
@@ -80,9 +80,5 @@ public class GameManager : MonoBehaviour
 //        }
 //        return win;
 //    }
-    IEnumerator IfLose()
-    {
-        new WaitForSeconds(3f);
-        yield return null;
-    }
+
 }

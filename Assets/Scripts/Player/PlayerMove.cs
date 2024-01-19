@@ -53,7 +53,7 @@ public class PlayerMove : MonoBehaviour
     public float DashCoolDown; //pu
     private bool DashReady;     //pu
     private Coroutine dashRoutine = null;
-    private bool isDash = false;
+    //private bool isDash = false;
     private float dashTime;
     private float maxaDashTime = 0.5f;
     private Ghost ghost;
@@ -387,9 +387,8 @@ public class PlayerMove : MonoBehaviour
     IEnumerator dash()
     {
         ghost.makeGhost = true;
-        isDash = true;
-        dashTime = 0f;
-        //Vector2 direction = new Vector2(Input.GetAxisRaw("Horizontal"), 0); 
+        //isDash = true;
+        dashTime = 0f;        
         while (dashTime <= maxaDashTime)
         {
             dashTime += Time.deltaTime;
@@ -398,7 +397,7 @@ public class PlayerMove : MonoBehaviour
             CantSliding = 0;
             yield return null;
         }
-        isDash = false;
+        //isDash = false;
         dashTime = 0f;
         ghost.makeGhost = false;
         DashCoolDown = 3f;

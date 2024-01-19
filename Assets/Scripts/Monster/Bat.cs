@@ -17,10 +17,7 @@ public class Bat : Monster
     float detectDistance;
     Coroutine hitRoutine = null;
     Coroutine moveRoutine = null;
-    //[HideInInspector]
-    public SpriteRenderer sr;
-    //[HideInInspector]
-    public Rigidbody2D rb;
+
 
     private void Awake()
     {
@@ -157,10 +154,8 @@ public class Bat : Monster
             isHit = true;
             rb.velocity = Vector2.zero;
             state = State_B.Death;
-            Destroy(rb);
             yield return new WaitForSeconds(1.0f);
-            gameObject.SetActive(false);
-            gameObject.AddComponent<Rigidbody>();
+            Destroy(gameObject);    
         }
         yield return null;
     }

@@ -20,11 +20,7 @@ public class Skeletone : Monster
     Coroutine hitRoutine = null;
     Coroutine moveRoutine = null;
     
-    //[HideInInspector]
-    public SpriteRenderer sr;
-    
-    //[HideInInspector]
-    public Rigidbody2D rb;
+
     private void Awake()
     {
         Damage = 1;
@@ -152,10 +148,11 @@ public class Skeletone : Monster
             {
                 isHit = true;
                 state = State_s.Death;
-                Destroy(rb);
+                //Destroy(rb);
                 yield return new WaitForSeconds(1f);
-                gameObject.SetActive(false);                
-                gameObject.AddComponent<Rigidbody>();
+                Destroy(gameObject);
+                //gameObject.SetActive(false);                
+                //gameObject.AddComponent<Rigidbody>();
             }
             yield return null;
         }

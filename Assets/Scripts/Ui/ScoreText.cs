@@ -6,6 +6,6 @@ public class ScoreText : MonoBehaviour
 {
     private void Update()
     {
-        GetComponent<Text>().text = "Stage" + (GameManager.Instance.stageNum + 1);
+        GetComponent<Text>().text = "Stage" + (GameManager.Instance.sceneLoader.stageNum+1);
     }
 }

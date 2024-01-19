@@ -5,15 +5,35 @@ using UnityEngine.SceneManagement;
 
 public class SceneLoader : MonoBehaviour
 {
-    public bool isClear;
-    public void GameSceneLoad()
+    public int stageNum;
+    private void Awake()
     {
+        stageNum = PlayerPrefs.GetInt("stageNum");
+        DontDestroyOnLoad(gameObject);
+
+    }
+    public void GameSceneLoad()
+    {       
         SceneManager.LoadScene("GameScene");
     }
 
     public void EndSceneLoad()
     {
         SceneManager.LoadScene("GameOver");
+    }
+
+    public void StartScene()
+    {
+        if (stageNum >= 2)
+        {
+            stageNum = 0;
+            if(GameManager.Instance.win)
+            {
+                GameManager.Instance.win = false;
+            }
+        }
+
+        SceneManager.LoadScene("StartScene");
     }
 
     public void QuitGame()
@@ -23,6 +43,8 @@ public class SceneLoader : MonoBehaviour
 
     public void StageLoader()
     {
-            SceneManager.LoadScene(GameManager.Instance.stageNum, LoadSceneMode.Single);
+        PlayerPrefs.SetInt("stageNum",stageNum);
+        SceneManager.LoadScene(stageNum+1, LoadSceneMode.Single);
     }
+
 }

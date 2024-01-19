@@ -10,8 +10,20 @@ public class GoalObject : MonoBehaviour
     {
         if(collision.tag == "Player")
         {
-            ++GameManager.Instance.stageNum;
-            GameManager.Instance.sceneLoader.StageLoader();
+            ++GameManager.Instance.sceneLoader.stageNum;
+            if(GameManager.Instance.thisgoal == true)
+            {
+                GameManager.Instance.thisgoal = false;
+            }
+            if (GameManager.Instance.sceneLoader.stageNum < 2)
+            {
+                GameManager.Instance.sceneLoader.StageLoader();
+            }
+            if(GameManager.Instance.sceneLoader.stageNum == 2)
+            {
+                GameManager.Instance.win = true;
+                GameManager.Instance.sceneLoader.EndSceneLoad();
+            }
         }
     }
 }
